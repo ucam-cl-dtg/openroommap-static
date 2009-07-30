@@ -1,0 +1,155 @@
+# for floor in `seq 2 -1 0`; do perl t2.pl $floor > map.svg; for a in `seq 0 1 5`; do WIDTH=$(( (1<<$a)*256 )); inkscape map.svg -e map.png -w $WIDTH -b "#FFFFFF"; convert -crop 256x map.png tile-$floor-$a-%d.png; for b in tile-$floor-$a-*; do convert -crop x256 $b sub`basename $b .png`-%d.png;done;rm tile-*; done; done
+
+# select min(x),min(y),max(x),max(y) from (select t2.maxx -t1.x as x ,t2.maxy-t1.y as y from floorpoly_table t1, (select max(x) as maxx,max(y) as maxy from floorpoly_table) t2 where polyid = (select polyid from room_table natural join roompoly_table where name ='SN13')) t2;
+
+
+use DBI;
+use strict;
+
+my $floor = $ARGV[0];
+
+my $roomFill = 'fill="#cccccc" fill-opacity="0.10" stroke="none"';
+my $roomStroke = 'fill="none" stroke="#000000" stroke-width="0.05px" stroke-linejoin="round" stroke-linecap="round"';
+
+my $dbh = DBI->connect("dbi:Pg:dbname=openroommap;host=localhost;port=5432","orm","openroommap", {AutoCommit => 0}) or
+ die "Failed to connect to database\n";
+
+my $r = $dbh->selectall_arrayref("SELECT -max(x),-min(x),min(y),max(y) from floorpoly_table;");
+my ($minX,$maxX,$minY,$maxY) = @{$r->[0]};   
+my ($width,$height) = ($maxX-$minX,$maxY-$minY);
+if ($width < $height) {
+    $maxX += ($height - $width);
+}
+if ($height < $width) {
+    $maxY += ($width - $height);
+}
+($width,$height) = ($maxX-$minX,$maxY-$minY);
+
+print STDERR "$minX,$minY,$maxX,$maxY\n";
+
+my $document;
+
+my $r = $dbh->selectall_arrayref("SELECT polyid from submappoly_table where submapid =$floor;");
+foreach my $row (@$r) {
+    my $polyid = $row->[0];
+    my $v = $dbh->selectall_arrayref("SELECT x,y,edgetarget FROM floorpoly_table where polyid=$polyid  order by vertexnum ASC");
+    my $fillData;
+    my $strokeData;
+    my $pet;
+    foreach my $vertex (@$v) {
+	my ($v1,$v2,$et) = (-$vertex->[0],$vertex->[1],$vertex->[2]);
+	if ($pet) {
+	    $strokeData .= "M $v1 $v2 ";
+	}
+	else {
+	    $strokeData .= "L $v1 $v2 ";
+	}
+	$pet = $et;
+	$fillData .= "L $v1 $v2 ";
+    }
+    $fillData =~ s/^L/M/;
+    $strokeData =~ /^((?:L|M)[^LM]+ )/;
+    my $first = $1;
+    if ($pet) {
+	$first =~ s/L/M/;
+    }
+    else {
+	$first =~ s/M/L/;
+    }
+    $strokeData .= $first;
+    $strokeData =~ s/^L/M/;
+    $fillData .= "z";
+    $document .= "<path d=\"$fillData\" $roomFill/>\n";
+#    $document .= "<path d=\"$strokeData\" $roomStroke/>\n";
+}
+
+my $items = $dbh->selectall_arrayref("SELECT name,def_id from item_definition_table order by height asc");
+foreach my $item (@$items) {
+    my ($name,$defid) = @$item;
+    my $polyDefs = $dbh->selectall_arrayref("SELECT poly_id, fill_colour,fill_alpha,edge_colour,edge_alpha FROM item_polygon_table where item_def_id = $defid");
+    my @itemPolys;
+    foreach my $polyDef (@$polyDefs) {
+	my ($poly_id,$fill_colour,$fill_alpha,$edge_colour,$edge_alpha) = @$polyDef;
+	my $vertices = $dbh->selectall_arrayref("SELECT x,y FROM item_polygon_vertex_table WHERE poly_id=$poly_id ORDER BY vertex_id asc");
+	my @polyVertices;
+	foreach my $vertex (@$vertices) {
+	    my ($v1,$v2) = ($vertex->[0],$vertex->[1]);
+	    push(@polyVertices,[$v1,$v2]);
+	}
+	push(@itemPolys,[&intToRGB($fill_colour),$fill_alpha,&intToRGB($edge_colour),$edge_alpha,\@polyVertices]);
+    }
+    my $placements = $dbh->selectall_arrayref("select x,y,theta,flipped,floor_id from placed_item_update_table, placed_item_table where last_update = update_id and item_def_id = $defid and floor_id=$floor and deleted='f'");
+  LABEL: foreach my $placement (@$placements) {
+	my ($cx,$cy,$theta,$flipped,$floor) = @$placement;
+	$theta = -$theta / 180 * 3.14159265358979323846;
+	foreach my $itemPoly (@itemPolys) {
+	    my ($fill_colour,$fill_alpha,$edge_colour,$edge_alpha,$polyVertices) = @$itemPoly;
+	    my $pathData;
+	    foreach my $vertex (@$polyVertices) {
+		my ($vx,$vy) = ($vertex->[0],$vertex->[1]);
+		if ($flipped =~ /1/) {
+		    $vy *= -1;
+		}
+		my $x = -($vx*cos($theta) + $vy*sin($theta) + $cx);
+		my $y = $vy*cos($theta) - $vx*sin($theta) + $cy;
+		$pathData .= "L $x $y ";
+		next LABEL if ($x > $maxX || $x < $minX || $y > $maxY || $y < $minY);		
+	    }
+	    $pathData =~ s/^L/M/;
+	    $pathData .= "z";
+	    $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05px'/>\n";
+	}
+    }
+}
+
+my $r = $dbh->selectall_arrayref("SELECT polyid from submappoly_table where submapid =$floor;");
+foreach my $row (@$r) {
+    my $polyid = $row->[0];
+    my $v = $dbh->selectall_arrayref("SELECT x,y,edgetarget FROM floorpoly_table where polyid=$polyid  order by vertexnum ASC");
+    my $fillData;
+    my $strokeData;
+    my $pet;
+    foreach my $vertex (@$v) {
+	my ($v1,$v2,$et) = (-$vertex->[0],$vertex->[1],$vertex->[2]);
+	if ($pet) {
+	    $strokeData .= "M $v1 $v2 ";
+	}
+	else {
+	    $strokeData .= "L $v1 $v2 ";
+	}
+	$pet = $et;
+	$fillData .= "L $v1 $v2 ";
+    }
+    $fillData =~ s/^L/M/;
+    $strokeData =~ /^((?:L|M)[^LM]+ )/;
+    my $first = $1;
+    if ($pet) {
+	$first =~ s/L/M/;
+    }
+    else {
+	$first =~ s/M/L/;
+    }
+    $strokeData .= $first;
+    $strokeData =~ s/^L/M/;
+    $fillData .= "z";
+ #   $document .= "<path d=\"$fillData\" $roomFill/>\n";
+    $document .= "<path d=\"$strokeData\" $roomStroke/>\n";
+}
+
+print '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">'."\n";
+print "<svg width='$width' height='$height' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n";
+print "<g transform='translate(".-$minX.",".-$minY.")\'>\n";
+print $document;
+print "</g>\n'";
+print "</svg>\n";
+
+
+
+
+sub intToRGB() {
+    my ($i) = @_;
+    my $r = ($i >> 16) & 0xFF;
+    my $g = ($i >> 8) & 0xFF;
+    my $b = $i & 0xFF;
+    return "rgb($r,$g,$b)";
+}
