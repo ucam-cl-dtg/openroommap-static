@@ -8,6 +8,8 @@ use strict;
 
 my $floor = $ARGV[0];
 
+my $labels = 0;
+
 my $roomFill = 'fill="#cccccc" fill-opacity="0.10" stroke="none" vector-effect="non-scaling-stroke" ';
 my $roomStroke = 'fill="none" stroke="#000000" stroke-width="0.05" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" ';
 
@@ -59,7 +61,7 @@ foreach my $row (@$r) {
     $strokeData .= $first;
     $strokeData =~ s/^L/M/;
     $fillData .= "z";
-    $document .= "<path d=\"$fillData\" $roomFill/>\n";
+    if ($labels == 0) { $document .= "<path d=\"$fillData\" $roomFill/>\n"; }
 #    $document .= "<path d=\"$strokeData\" $roomStroke/>\n";
 }
 
@@ -97,11 +99,12 @@ foreach my $item (@$items) {
 	    }
 	    $pathData =~ s/^L/M/;
 	    $pathData .= "z";
-	    $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n";
+	    if ($labels == 0) { $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n"; }
 	}
     }
 }
 
+my %usedRooms;
 my $r = $dbh->selectall_arrayref("SELECT polyid from submappoly_table where submapid =$floor;");
 foreach my $row (@$r) {
     my $polyid = $row->[0];
@@ -109,6 +112,7 @@ foreach my $row (@$r) {
     my $fillData;
     my $strokeData;
     my $pet;
+    my ($midx,$midy,$count) = (0,0,0);
     foreach my $vertex (@$v) {
 	my ($v1,$v2,$et) = (-$vertex->[0],$vertex->[1],$vertex->[2]);
 	if ($pet) {
@@ -119,7 +123,12 @@ foreach my $row (@$r) {
 	}
 	$pet = $et;
 	$fillData .= "L $v1 $v2 ";
+	$midx += $v1;
+	$midy += $v2;
+	$count++;
     }
+    $midx /= $count;
+    $midy /= $count;
     $fillData =~ s/^L/M/;
     $strokeData =~ /^((?:L|M)[^LM]+ )/;
     my $first = $1;
@@ -133,7 +142,20 @@ foreach my $row (@$r) {
     $strokeData =~ s/^L/M/;
     $fillData .= "z";
  #   $document .= "<path d=\"$fillData\" $roomFill/>\n";
-    $document .= "<path d=\"$strokeData\" $roomStroke/>\n";
+    if ($labels == 0) { $document .= "<path d=\"$strokeData\" $roomStroke/>\n"; }
+    else {
+	my $rm = $dbh->selectall_arrayref("select name from room_table, roompoly_table where room_table.roomid = roompoly_table.roomid and roompoly_table.polyid = $polyid limit 1");
+	foreach my $rmrow (@$rm) {
+	    if (!exists($usedRooms{$rmrow->[0]})) {
+		my $h = 1.265015;
+		my $w = 2.5195167;
+		my $bx = $midx-$w/2;
+		my $by = $midy-$h/2-0.252;
+		$document .= "<g><rect height=\"$h\" width=\"$w\" rx=\"0.44194168\" ry=\"0.31694031\" x=\"$bx\" y=\"$by\" style=\"opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.06;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1\" /><text x=\"$midx\" y=\"$midy\" dominant-baseline=\"central\" style=\"font-size:0.6934762px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans\">$rmrow->[0]</text></g>\n";
+		$usedRooms{$rmrow->[0]}= 1;
+	    }
+	}
+    }
 }
 
 print '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">'."\n";

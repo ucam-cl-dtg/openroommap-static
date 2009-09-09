@@ -8,6 +8,7 @@ my $q = new CGI;
 my $search = $q->param("q");
 my $reqhighlight = $q->param("highlight");
 my $reqzoom = $q->param("zoom");
+my $reqlabels = $q->param("labels") eq "on" ? "true" : "false";
 
 my %rooms = (
     "Corr" => [998.81,1038.27,1001.54,1046.15],
@@ -363,7 +364,7 @@ else {
     $zoom = "map.zoomToMaxExtent();";
 }
 
-
+my $labelsChecked = ($reqlabels eq "true") ? " CHECKED" : "";
 
 print <<EOF;
 Content-type: text/html
@@ -380,7 +381,7 @@ Content-type: text/html
   <meta content="computer science department, general information" name="keywords" />
   <script src="OpenLayers.js"></script>
   <script>
-    var currentfloor,showlabels,map,layer0,layer1,layer2,layer0label;
+    var currentfloor,showlabels,map,layer0,layer1,layer2,layer0label,layer1label;
 function init(){
     size = new OpenLayers.Bounds(-1006.3,997.17,-927.83,1075.64);
     maxRes = (size.top - size.bottom)/256;
@@ -405,31 +406,39 @@ function init(){
     layer0label.setIsBaseLayer(false);
     map.addLayer(layer0label);
 
-    switcher = new OpenLayers.Control.LayerSwitcher();
-    map.addControl(switcher);
-    switcher.maximizeControl();
+    layer1label = new OpenLayers.Layer.XYZ( "First Floor Labels",
+					    "tile/sublabel-1-\${z}-\${x}-\${y}.png");
+    layer1label.setIsBaseLayer(false);
+    map.addLayer(layer1label);
+
     map.setBaseLayer($baseLayer);
     currentfloor = $baseLayer;
+    showlabels = $reqlabels;
     $bounds
     $highlight
     $zoom
+
+    showlayers();
 }
 
 function setfloor(floor) {
     currentfloor = floor;
+    showlabels = false;
     showlayers();
 }
 
 function showlayers() {
     map.setBaseLayer(currentfloor);
+    layer0label.setVisibility(false);
+    layer1label.setVisibility(false);
     if (currentfloor == layer0) {
 	layer0label.setVisibility(showlabels);
     }
     else if (currentfloor == layer1) {
-	layer0label.setVisibility(false);
+	layer1label.setVisibility(showlabels);
     }
     else {
-	layer0label.setVisibility(false);
+//	layer2label.setVisibility(showlabels);
     }
 }
 
@@ -469,26 +478,16 @@ function convertBounds(map,b) {
     <div id="content">
      <h1>Internal layout of the William Gates Building</h1>
     <p>This map is a snapshot generated from OpenRoomMap, a building-occupant maintained plan of the building.  If you see a mistake please use the <a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit</a> link to correct it.  This snapshot is generated nightly.</p>
-    <div>
-     <form method="get">
-    <span style="border:solid 1px black; padding:2px; margin:1em">
-     Show room: 
-     <input type="text" value="$search" name="q"/>   
-     <input type="hidden" name="zoom" value="1"/>
-     <input type="submit" value="Go"/>
-     </span>
-     </form>
-    <span style="border:solid 1px black; padding:2px; margin:1em">
-    Show floor: 
-     <input type="submit" value="Ground floor" onclick="setfloor(layer0)"/>
-     <input type="submit" value="First floor" onclick="setfloor(layer1)"/>
-     <input type="submit" value="Second floor" onclick="setfloor(layer2)"/>
-    </span>
-    <span style="border:solid 1px black; padding:2px; margin:1em">
-    Show labels:
-     <input type="checkbox" onclick="setvisibility(this)"/>
-    </span>
-    <a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit</a> <img src="stock_edit.png" width="24" height="24"/></div>
+    <form method="get">
+    <table width="100%">
+    <tr>
+    <td>Show room: <input type="text" value="$search" name="q"/><input type="hidden" name="zoom" value="1"/><input type="submit" value="Go"/></td>
+    <td>Show floor: <input type="submit" value="Ground floor" onclick="setfloor(layer0)"/><input type="submit" value="First floor" onclick="setfloor(layer1)"/><input type="submit" value="Second floor" onclick="setfloor(layer2)"/></td>
+    <td>Show labels: <input name="labels" type="checkbox" onclick="setvisibility(this)" $labelsChecked/></td>
+    <td><a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit</a> <img src="stock_edit.png" width="24" height="24"/></td>
+    </tr>
+    </table>
+    </form>
     <div style="height:600px;border:solid 1px black;padding:2px;margin:1em;clear:both" id="map"></div>
 </div>
 <div id="bottombgline">&#160;</div>

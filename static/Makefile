@@ -3,3 +3,6 @@ subtiles:
 
 floor0-labels:
 	for a in `seq 0 1 5`; do WIDTH=$$(( (1<<$$a)*256 )); inkscape floor0-labels.svg -e floor0-labels.png -w $$WIDTH; convert -crop 256x floor0-labels.png label-0-$$a-%d.png; for b in label-0-$$a-*; do convert -crop x256 $$b tile/sub`basename $$b .png`-%d.png;done;rm label-*; done;
+
+floor1-labels:
+	for a in `seq 0 1 5`; do WIDTH=$$(( (1<<$$a)*256 )); inkscape floor1-labels.svg -e floor1-labels.png -w $$WIDTH; convert -crop 256x floor1-labels.png label-1-$$a-%d.png; for b in label-1-$$a-*; do convert -crop x256 $$b tile/sub`basename $$b .png`-%d.png;done;rm label-*; done;
