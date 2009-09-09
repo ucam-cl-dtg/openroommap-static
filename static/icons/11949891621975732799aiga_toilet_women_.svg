@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="2.8699999"
+   id="svg1538"
+   inkscape:version="0.46"
+   sodipodi:docbase="/datas/Projs/Cliparts Stocker/tmp/AIGA"
+   sodipodi:docname="11949891621975732799aiga_toilet_women_.svg"
+   sodipodi:version="0.32"
+   width="1.2250154"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.0">
+  <metadata
+     id="metadata7733">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>AIGA_Symbol_Signs</dc:title>
+        <dc:description>EPS converted from  http://aiga.org</dc:description>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>symbol</rdf:li>
+            <rdf:li>mapsym</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <dc:publisher>
+          <cc:Agent
+             rdf:about="http://www.openclipart.org/">
+            <dc:title>Open Clip Art Library</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Jean-Victor Balin</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Jean-Victor Balin</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:date />
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://web.resource.org/cc/PublicDomain" />
+        <dc:language>en</dc:language>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://web.resource.org/cc/PublicDomain">
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Reproduction" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Distribution" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     bordercolor="#666666"
+     borderopacity="1.0"
+     id="base"
+     inkscape:current-layer="svg1538"
+     inkscape:cx="1.1553803"
+     inkscape:cy="1.097978"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:window-height="983"
+     inkscape:window-width="1137"
+     inkscape:window-x="2717"
+     inkscape:window-y="122"
+     inkscape:zoom="181.01934"
+     pagecolor="#ffffff"
+     showgrid="false" />
+  <defs
+     id="defs1540">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 245.702 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="225.73599 : 245.702 : 1"
+       inkscape:persp3d-origin="112.868 : 163.80133 : 1"
+       id="perspective7746" />
+    <marker
+       id="ArrowEnd"
+       markerHeight="3"
+       markerUnits="strokeWidth"
+       markerWidth="4"
+       orient="auto"
+       refX="0"
+       refY="5"
+       viewBox="0 0 10 10">
+      <path
+         d="M 0,0 L 10,5 L 0,10 L 0,0 z"
+         id="path1543" />
+    </marker>
+    <marker
+       id="ArrowStart"
+       markerHeight="3"
+       markerUnits="strokeWidth"
+       markerWidth="4"
+       orient="auto"
+       refX="10"
+       refY="5"
+       viewBox="0 0 10 10">
+      <path
+         d="M 10,0 L 0,5 L 10,10 L 10,0 z"
+         id="path1546" />
+    </marker>
+  </defs>
+  <g
+     id="g8038">
+    <path
+       style="fill:#231f20"
+       d="M 1.0786131,2.87 C 1.1593991,2.87 1.2250154,2.7168 1.2250154,2.5275 L 1.2250154,0.34306 C 1.2250154,0.15357 1.159409,0 1.0786131,0 L 0.14647151,0 C 0.065606372,0 0,0.15355 0,0.34306 L 0,2.5275 C 0,2.7168 0.065606372,2.87 0.14647151,2.87 L 1.0786131,2.87 z"
+       id="path7662" />
+    <path
+       style="fill:#ffffff"
+       d="M 0.16897735,0.05771 C 0.10513366,0.05771 0.053235943,0.18603 0.053235943,0.34304 L 0.053235943,2.52748 C 0.053235943,2.68393 0.10513366,2.81155 0.16897735,2.81155 L 1.0561096,2.81155 C 1.1198778,2.81155 1.1717003,2.68395 1.1717003,2.52748 L 1.1717003,0.34306 C 1.1717003,0.18605 1.1198778,0.05773 1.0561096,0.05773 L 0.16897735,0.05773 L 0.16897735,0.05771 z"
+       id="path7664" />
+    <g
+       transform="matrix(4.2297343e-3,0,0,4.2297343e-3,0.1442704,0.38645)"
+       id="g1548">
+      <g
+         id="g1550">
+        <path
+           style="fill:#000000;stroke:none"
+           id="path1552"
+           d="M 113.129,80.035 C 135.23,80.035 153.147,62.119 153.147,40.017 C 153.147,17.918 135.23,0 113.129,0 C 91.0312,0 73.1122,17.918 73.1122,40.017 C 73.1122,62.119 91.0312,80.035 113.129,80.035 z" />
+        <path
+           d=""
+           style="fill:#000000;stroke:none"
+           id="path1554" />
+      </g>
+      <path
+         style="fill:#000000;stroke:none"
+         id="path1556"
+         d="M 107.212,333.911 L 107.228,472.514 C 107.228,497.7 69.4942,497.7 69.4942,472.514 L 69.4782,334.87 L 18.8082,334.87 L 72.9782,146.923 L 64.5682,146.923 L 33.0582,252.95 C 25.5582,276.075 -6.19176,266.575 1.07224,241.812 L 36.0582,126.623 C 39.8082,113.487 56.4212,90.2 85.1762,90.2 L 111.691,90.2 L 111.691,90.2 L 140.228,90.2 C 168.728,90.2 185.415,113.683 189.728,126.623 L 224.728,241.7 C 231.728,266.45 200.228,276.7 192.728,252.575 L 161.228,146.923 L 152.122,146.923 L 206.728,334.87 L 155.978,334.87 L 155.978,472.7 C 155.978,497.7 118.401,497.575 118.401,472.7 L 118.401,333.911 L 107.212,333.911 z" />
+    </g>
+  </g>
+</svg>

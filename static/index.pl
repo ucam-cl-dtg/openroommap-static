@@ -368,11 +368,19 @@ else {
 print <<EOF;
 Content-type: text/html
 
-
-<html>
-  <head>
-    <script src="OpenLayers.js"></script>
-    <script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <meta content="text/css" http-equiv="Content-Style-Type" />
+  <title>The Computer Laboratory</title>
+  <link href="http://www.cl.cam.ac.uk/style/camstyle2.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="http://www.cl.cam.ac.uk/style/print2.css" media="print" rel="stylesheet" type="text/css" />
+  <meta content="The Computer Science department of the University of Cambridge, England" name="description" />
+  <meta content="computer science department, general information" name="keywords" />
+  <script src="OpenLayers.js"></script>
+  <script>
+    var currentfloor,showlabels,map,layer0,layer1,layer2,layer0label;
 function init(){
     size = new OpenLayers.Bounds(-1006.3,997.17,-927.83,1075.64);
     maxRes = (size.top - size.bottom)/256;
@@ -381,7 +389,7 @@ function init(){
 	maxExtent : size,
       maxResolution: maxRes,
       units: "m",
-numZoomLevels : 6   } );
+	numZoomLevels : 6   } );
     layer0 = new OpenLayers.Layer.XYZ( "Ground Floor",
 				       "tile/subtile-0-\${z}-\${x}-\${y}.png" );
     map.addLayer(layer0);
@@ -392,14 +400,42 @@ numZoomLevels : 6   } );
 				       "tile/subtile-2-\${z}-\${x}-\${y}.png" );
     map.addLayer(layer2);
 
+    layer0label = new OpenLayers.Layer.XYZ( "Ground Floor Labels",
+					    "tile/sublabel-0-\${z}-\${x}-\${y}.png");
+    layer0label.setIsBaseLayer(false);
+    map.addLayer(layer0label);
+
     switcher = new OpenLayers.Control.LayerSwitcher();
     map.addControl(switcher);
     switcher.maximizeControl();
     map.setBaseLayer($baseLayer);
-
+    currentfloor = $baseLayer;
     $bounds
     $highlight
     $zoom
+}
+
+function setfloor(floor) {
+    currentfloor = floor;
+    showlayers();
+}
+
+function showlayers() {
+    map.setBaseLayer(currentfloor);
+    if (currentfloor == layer0) {
+	layer0label.setVisibility(showlabels);
+    }
+    else if (currentfloor == layer1) {
+	layer0label.setVisibility(false);
+    }
+    else {
+	layer0label.setVisibility(false);
+    }
+}
+
+function setvisibility(box) {
+    showlabels = box.checked;
+    showlayers();
 }
 
 function convertBounds(map,b) {
@@ -410,15 +446,55 @@ function convertBounds(map,b) {
 				 maxExtent.top - (b.bottom - maxExtent.bottom)).scale(1.1);
 }
 
-    </script>
+   </script>
   </head>
   <body onload="init()">
-    <h1>OpenRoomMap</h1>
-    <form method="get">
-    Search: <input type="text" value="$search" name="q"/>  Zoom <input type="checkbox" name="zoom" value="1" $zoomChecked/> Highlight <input type="checkbox" name="highlight" value="1" $highChecked/>
-<input type="submit"/>
-</form>
-    <div style="height:75%;border:solid 1px black;padding:2px" id="map"></div>
+   <div id="page">
+    <div id="navigation">
+     <div id="insert"><span class="noshow">|</span><a accesskey="4" href="search/"><img alt="[Search]" height="18" src="http://www.cl.cam.ac.uk/images/search.gif" width="53" /></a><span class="noshow">|</span><a href="http://www.cl.cam.ac.uk/az/"><img alt="[A-Z Index]" height="18" src="http://www.cl.cam.ac.uk/images/az.gif" width="53" /></a><span class="noshow">|</span><a href="http://www.cl.cam.ac.uk/contact/"><img alt="[Contact]" height="18" src="http://www.cl.cam.ac.uk/images/contact.gif" width="53" /></a></div>
+    </div>
+
+    <table id="header" summary="page header">
+     <tbody>
+      <tr>
+       <td class="identifier">
+        <a href="http://www.cam.ac.uk/"><img alt="[University of Cambridge]" height="46" src="http://www.cl.cam.ac.uk/images/identifier2.gif" width="192" /></a>
+       </td>
+       <td class="deptitle">Computer Laboratory</td>
+      </tr>
+     </tbody>
+    </table>
+    <div id="topbgline">&#160;</div>
+    <div id="bread"><p>&#160;</p></div>
+    <div id="content">
+     <h1>Internal layout of the William Gates Building</h1>
+    <p>This map is a snapshot generated from OpenRoomMap, a building-occupant maintained plan of the building.  If you see a mistake please use the <a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit</a> link to correct it.  This snapshot is generated nightly.</p>
+    <div>
+     <form method="get">
+    <span style="border:solid 1px black; padding:2px; margin:1em">
+     Show room: 
+     <input type="text" value="$search" name="q"/>   
+     <input type="hidden" name="zoom" value="1"/>
+     <input type="submit" value="Go"/>
+     </span>
+     </form>
+    <span style="border:solid 1px black; padding:2px; margin:1em">
+    Show floor: 
+     <input type="submit" value="Ground floor" onclick="setfloor(layer0)"/>
+     <input type="submit" value="First floor" onclick="setfloor(layer1)"/>
+     <input type="submit" value="Second floor" onclick="setfloor(layer2)"/>
+    </span>
+    <span style="border:solid 1px black; padding:2px; margin:1em">
+    Show labels:
+     <input type="checkbox" onclick="setvisibility(this)"/>
+    </span>
+    <a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit</a> <img src="stock_edit.png" width="24" height="24"/></div>
+    <div style="height:600px;border:solid 1px black;padding:2px;margin:1em;clear:both" id="map"></div>
+</div>
+<div id="bottombgline">&#160;</div>
+<p class="footer">&#169; 2009 Computer Laboratory, University of Cambridge<br />Please send any comments on this page to <a href="mailto:dtg-www\@cl.cam.ac.uk">dtg-www\@cl.cam.ac.uk</a><br /></p><p class="rfooter"><a href="http://www.cl.cam.ac.uk/privacy.html">Privacy policy</a></p>
+
+</div>
   </body>
 </html>
 EOF
