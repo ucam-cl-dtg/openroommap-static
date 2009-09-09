@@ -423,7 +423,6 @@ function init(){
 
 function setfloor(floor) {
     currentfloor = floor;
-    showlabels = false;
     showlayers();
 }
 
@@ -431,14 +430,16 @@ function showlayers() {
     map.setBaseLayer(currentfloor);
     layer0label.setVisibility(false);
     layer1label.setVisibility(false);
-    if (currentfloor == layer0) {
-	layer0label.setVisibility(showlabels);
-    }
-    else if (currentfloor == layer1) {
-	layer1label.setVisibility(showlabels);
-    }
-    else {
-//	layer2label.setVisibility(showlabels);
+    if (showlabels) {
+	if (currentfloor == layer0) {
+	    layer0label.setVisibility(true);
+	}
+	else if (currentfloor == layer1) {
+	    layer1label.setVisibility(true);
+	}
+	else {
+	    //	layer2label.setVisibility(showlabels);
+	}
     }
 }
 
@@ -482,7 +483,7 @@ function convertBounds(map,b) {
     <table width="100%">
     <tr>
     <td>Show room: <input type="text" value="$search" name="q"/><input type="hidden" name="zoom" value="1"/><input type="submit" value="Go"/></td>
-    <td>Show floor: <input type="submit" value="Ground floor" onclick="setfloor(layer0)"/><input type="submit" value="First floor" onclick="setfloor(layer1)"/><input type="submit" value="Second floor" onclick="setfloor(layer2)"/></td>
+    <td>Show floor: <input type="radio" value="Ground floor" onclick="setfloor(layer0)"/><input type="radio" value="First floor" onclick="setfloor(layer1)"/><input type="radio" value="Second floor" onclick="setfloor(layer2)"/></td>
     <td>Show labels: <input name="labels" type="checkbox" onclick="setvisibility(this)" $labelsChecked/></td>
     <td><a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit</a> <img src="stock_edit.png" width="24" height="24"/></td>
     </tr>
