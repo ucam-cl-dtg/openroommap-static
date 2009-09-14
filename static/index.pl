@@ -366,7 +366,9 @@ my $baseLayer = "layer0";
 my @floorchecked = ("","","");
 
 if ($reqfloor >= 0 && $reqfloor < 3) {
-    $floorchecked[$reqfloor] = " CHECKED";
+    if ($reqfloor == 0) { $baseLayer = "layer0"; $floorchecked[0] = " CHECKED"; }
+    elsif ($reqfloor == 1) { $baseLayer = "layer1"; $floorchecked[1] = " CHECKED"; }
+    elsif ($reqfloor == 2) { $baseLayer = "layer2"; $floorchecked[2] = " CHECKED"; }
 }
 if (exists($rooms{$search})) {
     my ($left,$bottom,$right,$top,$floor) = @{$rooms{$search}};
