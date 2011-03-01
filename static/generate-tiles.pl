@@ -9,8 +9,9 @@ use strict;
 my $floor = $ARGV[0];
 
 my $labels = 0;
+my $outlineOnly = 0;
 
-my $roomFill = 'fill="#cccccc" fill-opacity="0.10" stroke="none" vector-effect="non-scaling-stroke" ';
+my $roomFill = $outlineOnly == 0 ? 'fill="#cccccc" fill-opacity="0.10" stroke="none" vector-effect="non-scaling-stroke" ' : 'fill="none" stroke="none" vector-effect="non-scaling-stroke" ';
 my $roomStroke = 'fill="none" stroke="#000000" stroke-width="0.05" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" ';
 
 my $dbh = DBI->connect("dbi:Pg:dbname=openroommap;host=localhost;port=5432","orm","openroommap", {AutoCommit => 0}) or
@@ -99,7 +100,7 @@ foreach my $item (@$items) {
 	    }
 	    $pathData =~ s/^L/M/;
 	    $pathData .= "z";
-	    if ($labels == 0) { $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n"; }
+	    if ($outlineOnly == 0 && $labels == 0) { $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n"; }
 	}
     }
 }
