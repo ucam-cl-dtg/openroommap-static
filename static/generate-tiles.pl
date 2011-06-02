@@ -10,6 +10,7 @@ my $floor = $ARGV[0];
 
 my $labels = 0;
 my $outlineOnly = 0;
+my $stderrroomvectors = 0;
 
 my $roomFill = $outlineOnly == 0 ? 'fill="#cccccc" fill-opacity="0.10" stroke="none" vector-effect="non-scaling-stroke" ' : 'fill="none" stroke="none" vector-effect="non-scaling-stroke" ';
 my $roomStroke = 'fill="none" stroke="#000000" stroke-width="0.05" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" ';
@@ -35,10 +36,16 @@ my $document;
 my $r = $dbh->selectall_arrayref("SELECT polyid from submappoly_table where submapid =$floor;");
 foreach my $row (@$r) {
     my $polyid = $row->[0];
+    if ($stderrroomvectors == 1) {
+	my $rm = $dbh->selectall_arrayref("select name from room_table, roompoly_table where room_table.roomid = roompoly_table.roomid and roompoly_table.polyid = $polyid limit 1");
+	my $roomname = $rm->[0]->[0]; 
+	print STDERR "# $roomname\n";
+    }
     my $v = $dbh->selectall_arrayref("SELECT x,y,edgetarget FROM floorpoly_table where polyid=$polyid  order by vertexnum ASC");
     my $fillData;
     my $strokeData;
     my $pet;
+    my $first = "none";
     foreach my $vertex (@$v) {
 	my ($v1,$v2,$et) = (-$vertex->[0],$vertex->[1],$vertex->[2]);
 	if ($pet) {
@@ -47,8 +54,16 @@ foreach my $row (@$r) {
 	else {
 	    $strokeData .= "L $v1 $v2 ";
 	}
+	if ($stderrroomvectors == 1) {
+	    if ($first eq "none") { $first = "$v1 $v2"; }
+	    print STDERR "$v1 $v2\n";
+	}
 	$pet = $et;
 	$fillData .= "L $v1 $v2 ";
+    }
+    if ($stderrroomvectors == 1) {
+	print STDERR "$first\n";
+	print STDERR "\n";
     }
     $fillData =~ s/^L/M/;
     $strokeData =~ /^((?:L|M)[^LM]+ )/;
