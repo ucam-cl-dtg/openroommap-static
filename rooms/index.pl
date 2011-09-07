@@ -24,9 +24,13 @@ sub roomlist
 {
     my %people = ();
     # 47 is the magic number for a person object
-    my $t = $dbh->selectall_arrayref("select x,y,label,floor_id from placed_item_table, placed_item_update_table where placed_item_table.last_update = placed_item_update_table.update_id and placed_item_table.item_def_id=47 and deleted = false");
+    my $t = $dbh->selectall_arrayref("select x,y,label,floor_id,timestamp from placed_item_table, placed_item_update_table where placed_item_table.last_update = placed_item_update_table.update_id and placed_item_table.item_def_id=47 and deleted = false");
     for my $tow (@$t) {
-	my ($x,$y,$label,$floor) = @$tow;
+	my ($x,$y,$label,$floor,$timestamp) = @$tow;
+	if ($timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d).\d+/) {
+	    $timestamp = "$1-$2-$3 $4:$5";
+	}
+
 	if (!$label) {
 	    $label = "UNKNOWN";
 	}
@@ -35,8 +39,11 @@ sub roomlist
 	    $suffix++;
 	}
 	$label = $label.($suffix==1?"":"-$suffix");
-	$people{$label} = [$x,$y,$floor,"UNKNOWN"];
+	$people{$label} = [$x,$y,$floor,"UNKNOWN",$timestamp];
     }
+
+    # we now have a map of people labels to location,floor,room(unknown) and time of update
+
 
     my @rooms = ();
     # recover the floor_id by cross linking the room polygon with the submap polygon table
@@ -52,6 +59,9 @@ sub roomlist
 	my $poly = Math::Polygon->new(@poly,$poly[0]);
 	push(@rooms,[$roomname,$floor,$poly]);
     }
+
+    # we now have a list of rooms with names, floor and polygon
+
 
     foreach my $q (@rooms) {
 	my ($roomname,$floor,$poly) = @$q;
@@ -71,7 +81,9 @@ sub roomlist
 my $site = readfile("static.html", 1);
 
 my $ccat = "";
+
 my $peopleref = &roomlist();
+# peopleref is a reference to a hash of people labels to [x,y,floor,roomname,timestamp]
 
 # unpack the people in to a list of hashtables
 # $rooms[0] = Ground floor
@@ -89,21 +101,38 @@ foreach my $name (keys(%$peopleref)) {
     elsif ($room =~ /^S/) { $ref = $rooms[2]; }
     else { $ref = $rooms[3]; }
     if (!exists($ref->{$room})) { $ref->{$room} = []; }
-    push(@{$ref->{$room}},$name);
+    push(@{$ref->{$room}},[$name,$peopleref->{$name}->[4]]);
 }
+
+# now rooms is a list of 4 references to hashes
+# each hash contains a mapping from room name to a list reference
+# each list contains a list of pairs of people labels and timestamps
 
 my $body="";
 my @strings = ("Ground Floor","First Floor", "Second Floor", "Other");
 # build a separate table for each floor
 for(my $i=0;$i<4;$i++) {
+    # if there are any assignments for this floow
     if (%{$rooms[$i]}) {
-	$body .= "<div class='subtitle'>$strings[$i]</div>
-<table style='margin: 0 1em'>";
+	$body .= "<div class='subtitle'>$strings[$i]</div>";
+	# foreach room assigned
 	foreach my $room (sort keys(%{$rooms[$i]})) {
-	    my $list = join(", ",sort @{$rooms[$i]->{$room}});
-	    $body .= "<tr><td>&nbsp; $room &nbsp; </td><td>$list</td></tr>";
+	    my @people = sort {$a->[0] cmp $b->[0]} @{$rooms[$i]->{$room}};
+	    my $first = 1;
+	    foreach my $person (@people) {
+		if ($first ==1) {
+		    $body .= "<div style='clear:both;height:1em'></div>";
+		    $body .= "<div style='width:7em;float:left'>$room</div>";
+		    $first = 0;
+		}
+		else {		
+		    $body .= "<div style='width:7em;float:left'>&nbsp;</div>";
+		}
+		$body .= "<div style='width:15em;float:left'>$person->[0]</div>";
+		$body .= "<div style='width:20em;float:left'>$person->[1]</div>";
+		$body .= "<div style='clear:both'></div>";
+	    }
 	}
-	$body .= "</table>";
     }
 }
 
