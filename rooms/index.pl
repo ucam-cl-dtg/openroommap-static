@@ -70,7 +70,7 @@ sub roomlist
 	    # if the person has not been mapped and they are on the same floor as this room
 	    if ($p2->[3] eq "UNKNOWN" and $p2->[2] == $floor) {
 		if ($poly->contains([$p2->[0],$p2->[1]])) {
-		    $people{$p}->[2] = $roomname;
+		    $people{$p}->[3] = $roomname;
 		}
 	    }
 	}
@@ -94,7 +94,7 @@ my $peopleref = &roomlist();
 # The values are references to arrays of crsids
 my @rooms = ({},{},{},{});
 foreach my $name (keys(%$peopleref)) {
-    my $room = $peopleref->{$name}->[2];
+    my $room = $peopleref->{$name}->[3];
     my $ref;
     if ($room =~ /^G/) { $ref = $rooms[0]; }
     elsif ($room =~ /^F/) { $ref = $rooms[1]; }
