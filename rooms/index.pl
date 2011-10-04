@@ -24,9 +24,9 @@ sub roomlist
 {
     my %people = ();
     # 47 is the magic number for a person object
-    my $t = $dbh->selectall_arrayref("select x,y,label,floor_id,timestamp from placed_item_table, placed_item_update_table where placed_item_table.last_update = placed_item_update_table.update_id and placed_item_table.item_def_id=47 and deleted = false");
+    my $t = $dbh->selectall_arrayref("select x,y,label,floor_id,timestamp,placed_item_table.item_id from placed_item_table, placed_item_update_table where placed_item_table.last_update = placed_item_update_table.update_id and placed_item_table.item_def_id=47 and deleted = false");
     for my $tow (@$t) {
-	my ($x,$y,$label,$floor,$timestamp) = @$tow;
+	my ($x,$y,$label,$floor,$timestamp,$itemid) = @$tow;
 	if ($timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d).\d+/) {
 	    $timestamp = "$1-$2-$3 $4:$5";
 	}
@@ -39,7 +39,7 @@ sub roomlist
 	    $suffix++;
 	}
 	$label = $label.($suffix==1?"":"-$suffix");
-	$people{$label} = [$x,$y,$floor,"UNKNOWN",$timestamp];
+	$people{$label} = [$x,$y,$floor,"UNKNOWN",$timestamp,$itemid];
     }
 
     # we now have a map of people labels to location,floor,room(unknown) and time of update
@@ -101,7 +101,10 @@ foreach my $name (keys(%$peopleref)) {
     elsif ($room =~ /^S/) { $ref = $rooms[2]; }
     else { $ref = $rooms[3]; }
     if (!exists($ref->{$room})) { $ref->{$room} = []; }
-    push(@{$ref->{$room}},[$name,$peopleref->{$name}->[4]]);
+    my $roomlistref = $ref->{$room};
+    my $timestamp = $peopleref->{$name}->[4];
+    my $itemid = $peopleref->{$name}->[5];
+    push(@$roomlistref,[$name,$timestamp,$itemid]);
 }
 
 # now rooms is a list of 4 references to hashes
@@ -120,6 +123,7 @@ for(my $i=0;$i<4;$i++) {
 	    my @people = sort {$a->[0] cmp $b->[0]} @{$rooms[$i]->{$room}};
 	    my $first = 1;
 	    foreach my $person (@people) {
+		my ($name,$timestamp,$itemid) = @$person;
 		if ($first ==1) {
 		    $body .= "<div style='clear:both;height:1em'></div>";
 		    $body .= "<div style='width:7em;float:left'>$room</div>";
@@ -128,8 +132,8 @@ for(my $i=0;$i<4;$i++) {
 		else {		
 		    $body .= "<div style='width:7em;float:left'>&nbsp;</div>";
 		}
-		$body .= "<div style='width:15em;float:left'>$person->[0]</div>";
-		$body .= "<div style='width:20em;float:left'>$person->[1]</div>";
+		$body .= "<div style='width:15em;float:left'>$name</div><!-- id = $itemid -->";
+		$body .= "<div style='width:20em;float:left'>$timestamp</div>";
 		$body .= "<div style='clear:both'></div>";
 	    }
 	}
