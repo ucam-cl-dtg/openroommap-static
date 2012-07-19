@@ -1,4 +1,4 @@
-all: subtiles floor0-labels floor1-labels floor2-labels
+all: clean subtiles floor0-labels floor1-labels floor2-labels
 	scp tile/* root@open-room-map:/var/www/research/dtg/openroommap/static/tile/
 
 connect:
