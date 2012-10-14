@@ -7,7 +7,7 @@ use DBI;
 use strict;
 
 my $floor = $ARGV[0];
-
+my $people = $ARGV[1];
 my $labels = 0;
 my $outlineOnly = 0;
 my $stderrroomvectors = 0;
@@ -77,7 +77,7 @@ foreach my $row (@$r) {
     $strokeData .= $first;
     $strokeData =~ s/^L/M/;
     $fillData .= "z";
-    if ($labels == 0) { $document .= "<path d=\"$fillData\" $roomFill/>\n"; }
+    if ($labels == 0 && $people == 0) { $document .= "<path d=\"$fillData\" $roomFill/>\n"; }
 #    $document .= "<path d=\"$strokeData\" $roomStroke/>\n";
 }
 
@@ -115,7 +115,7 @@ foreach my $item (@$items) {
 	    }
 	    $pathData =~ s/^L/M/;
 	    $pathData .= "z";
-	    if ($outlineOnly == 0 && $labels == 0) { $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n"; }
+	    if ($outlineOnly == 0 && $labels == 0 && $people == 0) { $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n"; }
 	}
     }
 }
@@ -158,8 +158,8 @@ foreach my $row (@$r) {
     $strokeData =~ s/^L/M/;
     $fillData .= "z";
  #   $document .= "<path d=\"$fillData\" $roomFill/>\n";
-    if ($labels == 0) { $document .= "<path d=\"$strokeData\" $roomStroke/>\n"; }
-    else {
+    if ($labels == 0 && $people == 0) { $document .= "<path d=\"$strokeData\" $roomStroke/>\n"; }
+    if ($labels == 1) {
 	my $rm = $dbh->selectall_arrayref("select name from room_table, roompoly_table where room_table.roomid = roompoly_table.roomid and roompoly_table.polyid = $polyid limit 1");
 	foreach my $rmrow (@$rm) {
 	    if (!exists($usedRooms{$rmrow->[0]})) {
@@ -171,6 +171,15 @@ foreach my $row (@$r) {
 		$usedRooms{$rmrow->[0]}= 1;
 	    }
 	}
+    }
+    if ($people == 1) {
+	my $plp = $dbh->selectall_arrayref("select x,y,label from placed_item_table, placed_item_update_table where placed_item_table.last_update = placed_item_update_table.update_id and placed_item_table.item_def_id=47 and deleted = false and floor_id = $floor");
+	foreach my $plprow (@$plp) {
+	    my ($x,$y,$label) = @$plprow;
+	    $x *= -1;
+	    $document .= "<g><text x=\"$x\" y=\"$y\" dominant-baseline=\"central\" style=\"font-size:0.6934762px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:DejaVu Sans;inkscape-font-specification:DejaVu Sans\">$label</text></g>\n";
+	}
+
     }
 }
 

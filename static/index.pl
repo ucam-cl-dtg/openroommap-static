@@ -9,6 +9,7 @@ my $search = $q->param("q");
 my $reqhighlight = $q->param("highlight");
 my $reqzoom = $q->param("zoom");
 my $reqlabels = $q->param("labels") == 1 ? "true" : "false";
+my $reqoccupants = $q->param("occupants") == 1 ? "true" : "false";
 my $reqfloor = $q->param("floor");
 
 if ($q->param("h")) {
@@ -16,24 +17,27 @@ if ($q->param("h")) {
     $reqhighlight = 1;
     $reqzoom = 0;
     $reqlabels = "true";
-    $reqfloor = "";
+    $reqoccupants = "false";
+    $reqfloor = 9;
 }
 
 if ($q->param("s")) {
     $search = $q->param("s");
-    $reqhighlight = 0;
-    $reqzoom = 1;
-    $reqlabels = "false";
-    $reqfloor = "";
+    $reqhighlight = 1;
+    $reqzoom = 0;
+    $reqlabels = "true";
+    $reqoccupants = "false";
+    $reqfloor = 9;
 }
 
+$search = uc($search);
 $reqzoom =~ s/\D//g;
 $reqfloor =~ s/\D//g;
 
 my %rooms = (
-    "Corr" => [998.81,1038.27,1001.54,1046.15,0],
-    "C_Stairs_L1" => [971.43,1002.66,975.81,1008.93,1],
-    "C_Stairs_L2" => [971.43,1002.66,975.81,1008.76,2],
+    "CORR" => [998.81,1038.27,1001.54,1046.15,0],
+    "C_STAIRS_L1" => [971.43,1002.66,975.81,1008.93,1],
+    "C_STAIRS_L2" => [971.43,1002.66,975.81,1008.76,2],
     "FC01" => [970.66,1042.77,975.93,1046.16,1],
     "FC03" => [970.66,1037.97,975.93,1042.67,1],
     "FC04" => [964.18,1041.27,968.81,1046.16,1],
@@ -54,10 +58,10 @@ my %rooms = (
     "FC20" => [964.18,1016.42,968.21,1019.27,1],
     "FC22" => [964.22,1010.92,968.21,1016.22,1],
     "FC24" => [964.07,999.12,971.31,1009.05,1],
-    "FC_Balcony" => [964.23,997.17,971.17,999.12,1],
-    "FC_Corridor" => [968.21,1010.82,971.39,1046.16,1],
-    "FC_Kitchen" => [971.31,998.45,975.93,1002.38,1],
-    "FC_Toilet" => [971.35,1010.96,976.04,1016.6,1],
+    "FC_BALCONY" => [964.23,997.17,971.17,999.12,1],
+    "FC_CORRIDOR" => [968.21,1010.82,971.39,1046.16,1],
+    "FC_KITCHEN" => [971.31,998.45,975.93,1002.38,1],
+    "FC_TOILET" => [971.35,1010.96,976.04,1016.6,1],
     "FE01" => [991.11,1004.45,993.89,1009.08,1],
     "FE02" => [991.11,1010.92,993.89,1016.2,1],
     "FE03" => [988.1,1004.45,991.01,1009.08,1],
@@ -82,8 +86,8 @@ my %rooms = (
     "FE23" => [943.11,1004.45,946.61,1009.07,1],
     "FE24" => [940.22,1010.82,943.01,1016.2,1],
     "FE25" => [940.22,1004.45,943.01,1009.07,1],
-    "FE_Corridor" => [935.21,1002.55,998.91,1011,1],
-    "FE_Kitchen" => [935.39,1011,937.4,1012.66,1],
+    "FE_CORRIDOR" => [935.21,1002.55,998.91,1011,1],
+    "FE_KITCHEN" => [935.39,1011,937.4,1012.66,1],
     "FN01" => [1000.21,1034.07,1005.93,1046.16,1],
     "FN04" => [994.18,1041.27,998.21,1046.16,1],
     "FN05" => [1000.21,1028.57,1005.93,1034.07,1],
@@ -101,10 +105,10 @@ my %rooms = (
     "FN19" => [1000.21,1001.37,1005.93,1004.27,1],
     "FN21" => [1001.31,998.45,1005.93,1001.27,1],
     "FN34" => [994.18,999.12,1001.31,1001.88,1],
-    "FN_Balcony" => [994.31,997.17,1001.17,999.12,1],
-    "FN_Corridor" => [997.11,1001.88,1000.21,1054.77,1],
-    "FN_Kitchen" => [996.87,1014.91,998.73,1016.61,1],
-    "FN_Toilet" => [994.07,1011,998.77,1016.65,1],
+    "FN_BALCONY" => [994.31,997.17,1001.17,999.12,1],
+    "FN_CORRIDOR" => [997.11,1001.88,1000.21,1054.77,1],
+    "FN_KITCHEN" => [996.87,1014.91,998.73,1016.61,1],
+    "FN_TOILET" => [994.07,1011,998.77,1016.65,1],
     "FS02" => [928.18,1042.77,932.21,1046.16,1],
     "FS03" => [934.11,1040.37,939.93,1046.16,1],
     "FS04" => [928.18,1037.97,932.21,1042.67,1],
@@ -124,9 +128,9 @@ my %rooms = (
     "FS22" => [928.18,1004.97,932.21,1007.87,1],
     "FS24" => [928.18,1001.97,932.21,1004.87,1],
     "FS35" => [935.31,998.45,939.93,1002.38,1],
-    "FS_Balcony" => [928.26,997.17,935.21,999.12,1],
-    "FS_Corridor" => [928.18,999.12,935.43,1046.16,1],
-    "FS_Toilet" => [935.35,1010.96,940.04,1016.6,1],
+    "FS_BALCONY" => [928.26,997.17,935.21,999.12,1],
+    "FS_CORRIDOR" => [928.18,999.12,935.43,1046.16,1],
+    "FS_TOILET" => [935.35,1010.96,940.04,1016.6,1],
     "FW01" => [1000.21,1046.49,1006.29,1052.16,1],
     "FW03" => [995.91,1052.49,998.21,1054.67,1],
     "FW04" => [993.03,1052.49,995.81,1054.67,1],
@@ -145,8 +149,8 @@ my %rooms = (
     "FW26" => [933.87,1053.57,942.32,1064.2,1],
     "FW27" => [942.32,1058.61,946.12,1059.87,1],
     "FW28" => [942.42,1059.87,946.12,1063.12,1],
-    "FW_Landing" => [931.94,1046.16,997.11,1059.82,1],
-    "Reception" => [971.31,1042.77,975.94,1046.15,0], # alias
+    "FW_LANDING" => [931.94,1046.16,997.11,1059.82,1],
+    "RECEPTION" => [971.31,1042.77,975.94,1046.15,0], # ALIAS
     "GC01" => [971.31,1042.77,975.94,1046.15,0],
     "GC03" => [971.31,1037.37,975.94,1042.77,0],
     "GC04" => [964.19,1041.27,968.81,1046.15,0],
@@ -166,8 +170,8 @@ my %rooms = (
     "GC20" => [964.23,1005.57,968.81,1009.07,0],
     "GC22" => [964.23,999.17,968.81,1005.47,0],
     "GC33" => [971.31,998.44,975.94,1002.38,0],
-    "GC_Corridor" => [968.81,1010.82,971.39,1046.15,0],
-    "GC_Toilet" => [971.35,1010.96,976.05,1016.59,0],
+    "GC_CORRIDOR" => [968.81,1010.82,971.39,1046.15,0],
+    "GC_TOILET" => [971.35,1010.96,976.05,1016.59,0],
     "GE01" => [990.51,1004.44,993.94,1009.07,0],
     "GE03" => [985.71,1004.44,990.41,1009.07,0],
     "GE05" => [982.71,1004.44,985.61,1009.17,0],
@@ -187,8 +191,8 @@ my %rooms = (
     "GE21" => [943.71,1004.44,946.91,1009.07,0],
     "GE22" => [940.23,1010.92,943.01,1016.19,0],
     "GE23" => [940.19,1004.44,943.61,1009.07,0],
-    "GE_Corridor" => [935.21,999.12,994,1011,0],
-    "GE_Kitchen" => [971.39,1011,973.4,1012.66,0],
+    "GE_CORRIDOR" => [935.21,999.12,994,1011,0],
+    "GE_KITCHEN" => [971.39,1011,973.4,1012.66,0],
     "GN01" => [1001.54,1042.83,1005.92,1046.14,0],
     "GN04" => [994.19,1043.05,997.71,1046.15,0],
     "GN06" => [976.23,1010.92,1000.01,1043.05,0],
@@ -196,7 +200,7 @@ my %rooms = (
     "GN13" => [1001.54,1018,1005.94,1020.81,0],
     "GN17" => [1001.5,1009.04,1005.94,1017.82,0],
     "GN19" => [995.69,998.44,1005.94,1008.9,0],
-    "GN_Corridor" => [994,1008.9,1001.54,1038.27,0],
+    "GN_CORRIDOR" => [994,1008.9,1001.54,1038.27,0],
     "GS02" => [928.19,1043.37,932.81,1046.27,0],
     "GS03" => [938.52,1036.68,939.94,1046.32,0],
     "GS04" => [928.19,1040.37,932.81,1043.27,0],
@@ -219,11 +223,11 @@ my %rooms = (
     "GS22" => [928.19,1005.27,932.81,1009.37,0],
     "GS24" => [928.19,999.12,932.81,1005.17,0],
     "GS37" => [935.31,998.44,939.94,1002.38,0],
-    "GS_Corridor" => [932.81,999.12,935.43,1046.15,0],
-    "GS_Toilet" => [935.35,1010.96,940.05,1016.59,0],
+    "GS_CORRIDOR" => [932.81,999.12,935.43,1046.15,0],
+    "GS_TOILET" => [935.35,1010.96,940.05,1016.59,0],
     "GW01" => [1001.19,1046.45,1006.3,1052.16,0],
     "GW02" => [994.75,1052.49,998.27,1058.21,0],
-    "Stores" => [989.78,1052.49,994.75,1058.21,0], # alias
+    "STORES" => [989.78,1052.49,994.75,1058.21,0], # ALIAS
     "GW03" => [989.78,1052.49,994.75,1058.21,0],
     "GW04" => [985.8,1052.49,989.56,1058.21,0],
     "GW05" => [982.19,1058.21,987.13,1064.2,0],
@@ -245,16 +249,16 @@ my %rooms = (
     "GW30" => [936.04,1058.69,942.36,1061.77,0],
     "GW31" => [942.36,1062.81,946.06,1064.2,0],
     "GW32" => [942.46,1057.8,946.09,1062.67,0],
-    "LT1" => [960.01,1052.29,975.85,1072.17,0], # alias
-    "Lecture Theatre 1" => [960.01,1052.29,975.85,1072.17,0], # alias
-    "LargeLectureRoom" => [960.01,1052.29,975.85,1072.17,0],
-    "LargeLectureRoom_Lobby" => [957.75,1052.49,964.26,1054.94,0],
-    "LargeLectureRoom_ProjectorRoom" => [973.87,1059.78,975.85,1067.33,0],
-    "LectureRooms_Preparation" => [952.01,1055.67,960.01,1058,0],
-    "N_FrontStairs_L1" => [982.52,1052.5,985.22,1057.88,1],
-    "N_FrontStairs_L2" => [982.52,1052.5,985.22,1057.88,2],
-    "N_Stairs_L1" => [994.31,1001.62,998.88,1008.95,1],
-    "N_Stairs_L2" => [994.31,1002.16,998.69,1008.76,2],
+    "LT1" => [960.01,1052.29,975.85,1072.17,0], # ALIAS
+    "LECTURE THEATRE 1" => [960.01,1052.29,975.85,1072.17,0], # ALIAS
+    "LARGELECTUREROOM" => [960.01,1052.29,975.85,1072.17,0],
+    "LARGELECTUREROOM_LOBBY" => [957.75,1052.49,964.26,1054.94,0],
+    "LARGELECTUREROOM_PROJECTORROOM" => [973.87,1059.78,975.85,1067.33,0],
+    "LECTUREROOMS_PREPARATION" => [952.01,1055.67,960.01,1058,0],
+    "N_FRONTSTAIRS_L1" => [982.52,1052.5,985.22,1057.88,1],
+    "N_FRONTSTAIRS_L2" => [982.52,1052.5,985.22,1057.88,2],
+    "N_STAIRS_L1" => [994.31,1001.62,998.88,1008.95,1],
+    "N_STAIRS_L2" => [994.31,1002.16,998.69,1008.76,2],
     "SC01" => [971.31,1040.37,975.94,1046.16,2],
     "SC03" => [971.31,1037.37,975.94,1040.27,2],
     "SC04" => [964.19,1040.37,968.81,1046.15,2],
@@ -274,9 +278,9 @@ my %rooms = (
     "SC30" => [964.11,1006.76,968.8,1009.07,2],
     "SC32" => [964.11,999.12,968.8,1006.66,2],
     "SC35" => [971.31,998.44,975.94,1002.42,2],
-    "SC_Balcony" => [964.24,997.17,971.15,999,2],
-    "SC_Corridor" => [968.8,999,971.43,1046.15,2],
-    "SC_Toilet" => [971.35,1010.96,976.05,1016.59,2],
+    "SC_BALCONY" => [964.24,997.17,971.15,999,2],
+    "SC_CORRIDOR" => [968.8,999,971.43,1046.15,2],
+    "SC_TOILET" => [971.35,1010.96,976.05,1016.59,2],
     "SE01" => [988.13,1004.45,993.94,1009.07,2],
     "SE02" => [988.13,1010.92,993.94,1016.2,2],
     "SE04" => [976.24,1010.92,987.99,1016.2,2],
@@ -292,14 +296,14 @@ my %rooms = (
     "SE22" => [940.23,1010.92,946.01,1016.2,2],
     "SE23" => [946.11,1004.44,949.01,1009.07,2],
     "SE25" => [940.23,1004.44,946.01,1009.07,2],
-    "SE_Corridor" => [935.21,1009.07,998.91,1011.04,2],
-    "S_FrontStairs_L1" => [942.9,1052.5,945.6,1057.88,2],
-    "S_FrontStairs_L2" => [942.9,1052.5,945.6,1057.88,2],
-    "LT2" => [948.58,1055.02,959.67,1072.2,0], # alias
-    "Lecture Theatre 2" => [948.58,1055.02,959.67,1072.2,0], # alias 
-    "SmallLectureRoom" => [948.58,1055.02,959.67,1072.2,0],
-    "SmallLectureRoom_Lobby" => [948.58,1055.67,952.01,1058,0],
-    "SmallLectureRoom_ProjectorRoom" => [957.65,1061.93,959.64,1068.77,0],
+    "SE_CORRIDOR" => [935.21,1009.07,998.91,1011.04,2],
+    "S_FRONTSTAIRS_L1" => [942.9,1052.5,945.6,1057.88,2],
+    "S_FRONTSTAIRS_L2" => [942.9,1052.5,945.6,1057.88,2],
+    "LT2" => [948.58,1055.02,959.67,1072.2,0], # ALIAS
+    "LECTURE THEATRE 2" => [948.58,1055.02,959.67,1072.2,0], # ALIAS 
+    "SMALLLECTUREROOM" => [948.58,1055.02,959.67,1072.2,0],
+    "SMALLLECTUREROOM_LOBBY" => [948.58,1055.67,952.01,1058,0],
+    "SMALLLECTUREROOM_PROJECTORROOM" => [957.65,1061.93,959.64,1068.77,0],
     "SN01" => [1001.21,1043.37,1005.94,1046.15,2],
     "SN03" => [1001.31,1040.37,1005.94,1043.27,2],
     "SN04" => [994.19,1040.37,998.81,1046.15,2],
@@ -320,10 +324,10 @@ my %rooms = (
     "SN27" => [1001.31,1001.31,1005.94,1007.25,2],
     "SN31" => [1001.31,998.44,1005.94,1001.21,2],
     "SN34" => [994.11,999.12,998.91,1001.82,2],
-    "SN_Balcony" => [994.24,997.17,1001.15,999,2],
-    "SN_Corridor" => [998.69,999,1001.31,1046.15,2],
-    "SN_Kitchen" => [996.88,1014.9,998.73,1016.6,2],
-    "SN_Toilet" => [994.08,1011,998.73,1016.64,2],
+    "SN_BALCONY" => [994.24,997.17,1001.15,999,2],
+    "SN_CORRIDOR" => [998.69,999,1001.31,1046.15,2],
+    "SN_KITCHEN" => [996.88,1014.9,998.73,1016.6,2],
+    "SN_TOILET" => [994.08,1011,998.73,1016.64,2],
     "SS02" => [928.19,1043.37,932.91,1046.15,2],
     "SS03" => [935.31,1034.37,939.94,1046.15,2],
     "SS04" => [928.19,1040.37,932.81,1043.27,2],
@@ -344,20 +348,21 @@ my %rooms = (
     "SS26" => [928.19,1004.37,932.81,1007.27,2],
     "SS28" => [928.19,999.12,932.81,1004.27,2],
     "SS35" => [935.31,998.44,939.94,1002.38,2],
-    "SS_Balcony" => [928.28,997.17,935.15,999,2],
-    "SS_Corridor" => [932.81,999,935.43,1046.15,2],
-    "S_Stairs_L1" => [935.43,1002.66,939.81,1008.89,2],
-    "S_Stairs_L2" => [935.43,1002.66,939.81,1008.76,2],
-    "SS_Toilet" => [935.35,1010.96,940.05,1016.59,2],
+    "SS_BALCONY" => [928.28,997.17,935.15,999,2],
+    "SS_CORRIDOR" => [932.81,999,935.43,1046.15,2],
+    "S_STAIRS_L1" => [935.43,1002.66,939.81,1008.89,2],
+    "S_STAIRS_L2" => [935.43,1002.66,939.81,1008.76,2],
+    "SS_TOILET" => [935.35,1010.96,940.05,1016.59,2],
     "SW00" => [1001.31,1046.48,1006.29,1052.15,2],
     "SW01" => [1000.01,1052.48,1005.94,1064.19,2],
     "SW02" => [985.8,1052.48,1000.01,1065.6,2],
     "SW04" => [982.19,1060.34,987.94,1065.6,2],
     "SW11" => [927.83,1052.29,974.81,1064.73,2],
     "SW12" => [954.83,1064.73,976.44,1072.5,2],
-    "SW_Landing" => [931.95,1046.15,1006.29,1064.73,2],
-    "SW_Toilet" => [940.14,1052.37,952.01,1057.95,2],
-    "The Street" => [927.83,1045.91,1001.19,1064.58,0]
+    "SW_LANDING" => [931.95,1046.15,1006.29,1064.73,2],
+    "SW_TOILET" => [940.14,1052.37,952.01,1057.95,2],
+    "THE STREET" => [927.83,1045.91,1001.19,1064.58,0],
+    "STREET" => [927.83,1045.91,1001.19,1064.58,0]
     );
 
 
@@ -366,16 +371,17 @@ my $baseLayer = "layer0";
 my @floorchecked = ("","","");
 
 if ($reqfloor >= 0 && $reqfloor < 3) {
-    if ($reqfloor == 0) { $baseLayer = "layer0"; $floorchecked[0] = " CHECKED"; }
-    elsif ($reqfloor == 1) { $baseLayer = "layer1"; $floorchecked[1] = " CHECKED"; }
-    elsif ($reqfloor == 2) { $baseLayer = "layer2"; $floorchecked[2] = " CHECKED"; }
+    if ($reqfloor == 0) { $baseLayer = "layer0"; $floorchecked[0] = " class='active'"; }
+    elsif ($reqfloor == 1) { $baseLayer = "layer1"; $floorchecked[1] = " class='active'"; }
+    elsif ($reqfloor == 2) { $baseLayer = "layer2"; $floorchecked[2] = " class='active'"; }
 }
+
 if (exists($rooms{$search})) {
     my ($left,$bottom,$right,$top,$floor) = @{$rooms{$search}};
     $bounds = "bounds = convertBounds(map,new OpenLayers.Bounds($left-($reqzoom-1),$bottom-($reqzoom-1),$right+($reqzoom-1),$top+($reqzoom-1)));";
-    if ($floor == 0) { $baseLayer = "layer0"; $floorchecked[0] = " CHECKED"; }
-    elsif ($floor == 1) { $baseLayer = "layer1"; $floorchecked[1] = " CHECKED"; }
-    elsif ($floor == 2) { $baseLayer = "layer2"; $floorchecked[2] = " CHECKED"; }
+    if ($floor == 0) { $baseLayer = "layer0"; $floorchecked[0] = " class='active'"; }
+    elsif ($floor == 1) { $baseLayer = "layer1"; $floorchecked[1] = " class='active'"; }
+    elsif ($floor == 2) { $baseLayer = "layer2"; $floorchecked[2] = " class='active'"; }
 }
 
 my $highlight = "";
@@ -403,77 +409,99 @@ else {
 }
 
 my $labelsChecked = ($reqlabels eq "true") ? " CHECKED" : "";
+my $occupantsChecked = ($reqoccupants eq "true") ? " CHECKED" : "";
+sub readfile
+{
+	my ($filepath, $die) = @_;
+	local $/; # slurp mode, allows to read whole file at once
+	my $contents = "";
+	if (open FILE, $filepath) {$contents = <FILE>; close FILE;}
+	elsif ($die) {die "Could not read file \"$filepath\"";}
+	return $contents;
+} 
 
-print <<EOF;
-Content-type: text/html
+my $site = readfile("static.html", 1);
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
- <head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-  <meta content="text/css" http-equiv="Content-Style-Type" />
-  <title>The Computer Laboratory</title>
-  <link href="http://www.cl.cam.ac.uk/style/camstyle2.css" media="screen" rel="stylesheet" type="text/css" />
-  <link href="http://www.cl.cam.ac.uk/style/print2.css" media="print" rel="stylesheet" type="text/css" />
-  <meta content="The Computer Science department of the University of Cambridge, England" name="description" />
-  <meta content="computer science department, general information" name="keywords" />
-  <script src="OpenLayers.js"></script>
-  <script src="prototype.js"></script>
-  <script>
-    var currentfloor,showlabels,map,layer0,layer1,layer2,layer0label,layer1label,layer2label;
+my $html_head = <<EOF;
+<script type="text/javascript" src="OpenLayers.js"></script>
+<script type="text/javascript" src="prototype.js"></script>
+<script type="text/javascript">
+<!--
+var currentfloor,showlabels,showoccupants,map,layer0,layer1,layer2,layer0label,layer1label,layer2label,layer0occupants,layer1occupants,layer2occupants;
+
 function init(){
     size = new OpenLayers.Bounds(-1006.3,997.17,-927.83,1075.64);
     maxRes = (size.top - size.bottom)/256;
 
-    \$('map').style.height = (document.viewport.getHeight()-\$('map').viewportOffset()[1]-\$('footerdiv').getHeight()-20) +"px";
-
+    //\$('map').style.height = (document.viewport.getHeight()-\$('map').viewportOffset()[1]-\$('footerdiv').getHeight()-20) +"px";
+    //\$('map').style.height = (document.viewport.getHeight()-\$('map').viewportOffset()[1]) +"px";
+    \$('map').style.height = "530px";
 
     map = new OpenLayers.Map( 'map', { 
-	maxExtent : size,
+    maxExtent : size,
       maxResolution: maxRes,
       units: "m",
-	numZoomLevels : 6   } );
+    numZoomLevels : 6   } );
     layer0 = new OpenLayers.Layer.XYZ( "Ground Floor",
-				       "tile/subtile-0-\${z}-\${x}-\${y}.png" );
+                       "tile/subtile-0-\${z}-\${x}-\${y}.png" );
     map.addLayer(layer0);
     layer1 = new OpenLayers.Layer.XYZ( "First Floor",
-				       "tile/subtile-1-\${z}-\${x}-\${y}.png" );
+                       "tile/subtile-1-\${z}-\${x}-\${y}.png" );
     map.addLayer(layer1);
     layer2 = new OpenLayers.Layer.XYZ( "Second Floor",
-				       "tile/subtile-2-\${z}-\${x}-\${y}.png" );
+                       "tile/subtile-2-\${z}-\${x}-\${y}.png" );
     map.addLayer(layer2);
 
     layer0label = new OpenLayers.Layer.XYZ( "Ground Floor Labels",
-					    "tile/sublabel-0-\${z}-\${x}-\${y}.png");
+                        "tile/sublabel-0-\${z}-\${x}-\${y}.png");
     layer0label.setIsBaseLayer(false);
     map.addLayer(layer0label);
 
     layer1label = new OpenLayers.Layer.XYZ( "First Floor Labels",
-					    "tile/sublabel-1-\${z}-\${x}-\${y}.png");
+                        "tile/sublabel-1-\${z}-\${x}-\${y}.png");
     layer1label.setIsBaseLayer(false);
     map.addLayer(layer1label);
 
     layer2label = new OpenLayers.Layer.XYZ( "Second Floor Labels",
-					    "tile/sublabel-2-\${z}-\${x}-\${y}.png");
+                        "tile/sublabel-2-\${z}-\${x}-\${y}.png");
     layer2label.setIsBaseLayer(false);
     map.addLayer(layer2label);
+
+
+    layer0occupant = new OpenLayers.Layer.XYZ( "Ground Floor Occupants",
+                        "tile/subpeople-0-\${z}-\${x}-\${y}.png");
+    layer0occupant.setIsBaseLayer(false);
+    map.addLayer(layer0occupant);
+
+    layer1occupant = new OpenLayers.Layer.XYZ( "First Floor Occupants",
+                        "tile/subpeople-1-\${z}-\${x}-\${y}.png");
+    layer1occupant.setIsBaseLayer(false);
+    map.addLayer(layer1occupant);
+
+    layer2occupant = new OpenLayers.Layer.XYZ( "Second Floor Occupants",
+                        "tile/subpeople-2-\${z}-\${x}-\${y}.png");
+    layer2occupant.setIsBaseLayer(false);
+    map.addLayer(layer2occupant);
 
     map.setBaseLayer($baseLayer);
     currentfloor = $baseLayer;
     showlabels = $reqlabels;
+    showoccupants = $reqoccupants;
 
     $bounds
     $highlight
     $zoom
 
     showlayers();
-
 }
 
-function setfloor(floor) {
+function setfloor(floor, obj) {
     currentfloor = floor;
     showlayers();
-    return true;
+    for (var i=0; i<3; i++)
+        document.getElementById('orm-fl' + i).className = "";
+    obj.className = "active";
+    return false;
 }
 
 function showlayers() {
@@ -492,10 +520,29 @@ function showlayers() {
 	    layer2label.setVisibility(true);
 	}
     }
+    layer0occupant.setVisibility(false);
+    layer1occupant.setVisibility(false);
+    layer2occupant.setVisibility(false);
+    if (showoccupants) {
+	if (currentfloor == layer0) {
+	    layer0occupant.setVisibility(true);
+	}
+	else if (currentfloor == layer1) {
+	    layer1occupant.setVisibility(true);
+	}
+	else {
+	    layer2occupant.setVisibility(true);
+	}
+    }
 }
 
 function setvisibility(box) {
     showlabels = box.checked;
+    showlayers();
+}
+
+function setvisibility2(box) {
+    showoccupants = box.checked;
     showlayers();
 }
 
@@ -507,64 +554,62 @@ function convertBounds(map,b) {
 				 maxExtent.top - (b.bottom - maxExtent.bottom));
 }
 
-   </script>
-  </head>
-  <body onload="init()">
-   <div id="page">
-    <div id="navigation">
-     <div id="insert"><span class="noshow">|</span><a accesskey="4" href="search/"><img alt="[Search]" height="18" src="http://www.cl.cam.ac.uk/images/search.gif" width="53" /></a><span class="noshow">|</span><a href="http://www.cl.cam.ac.uk/az/"><img alt="[A-Z Index]" height="18" src="http://www.cl.cam.ac.uk/images/az.gif" width="53" /></a><span class="noshow">|</span><a href="http://www.cl.cam.ac.uk/contact/"><img alt="[Contact]" height="18" src="http://www.cl.cam.ac.uk/images/contact.gif" width="53" /></a></div>
-    </div>
-
-    <table id="header" summary="page header">
-     <tbody>
-      <tr>
-       <td class="identifier">
-        <a href="http://www.cam.ac.uk/"><img alt="[University of Cambridge]" height="46" src="http://www.cl.cam.ac.uk/images/identifier2.gif" width="192" /></a>
-       </td>
-       <td class="deptitle">Computer Laboratory</td>
-      </tr>
-     </tbody>
-    </table>
-    <div id="topbgline">&#160;</div>
-    <div id="bread"><p>&#160;</p></div>
-    <div id="content">
-     <h1>Internal layout of the William Gates Building</h1>
-    <p>This map is a snapshot generated from OpenRoomMap, a building-occupant maintained plan of the building.  If you see a mistake please use the <a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit</a> link to correct it.  This snapshot is generated nightly.</p>
-    <form method="get">
-    <div style="float:left;width:13em;height:3.7em;border:1px solid black;margin:0.5em;padding:0.5em">
-      <div>Room</div>
-      <div style="padding:0.5em">
-      <input type="text" value="$search" name="q" size="12"/><input type="hidden" name="zoom" value="3"/><input type="submit" value="Go"/>
-      </div>
-    </div>
-    
-    <div style="float:left;width:16em;height:3.7em;border:1px solid black;margin:0.5em;padding:0.5em">
-      <div>Floor</div>
-      <div style="padding:0.5em">Ground <input type="radio" name="floor" value="0" onclick="setfloor(layer0)" $floorchecked[0]/> First <input type="radio" name="floor" value="1" onclick="setfloor(layer1)" $floorchecked[1]/> Second <input type="radio" name="floor"  value="2" onclick="setfloor(layer2)" $floorchecked[2]/></div>
-    </div>
-    <div style="float:left;width:13em;height:3.7em;border:1px solid black;margin:0.5em;padding:0.5em">
-    <div>Annotations</div>
-    <div style="padding:0.5em">
-    Room labels: <input name="labels" type="checkbox" onclick="setvisibility(this)" value="1" $labelsChecked/>
-    </div>
-    </div>
-    <div style="float:right;width:2em;height:3.7em;border:1px solid black;margin:0.5em;padding:0.5em">
-    <a href="http://www.cl.cam.ac.uk/research/dtg/openroommap/edit/applet2.html">edit
-    <br/>
-    <img src="stock_edit.png" width="24" height="24"/></a>
-    </div>
-    </form>
-    <div style="height:500px;border:solid 1px black;padding:0px;margin:0.5em;clear:both" id="map"></div>
-    </div>
-    <div id="footerdiv">
-    <div id="bottombgline">&#160;</div>
-    <p class="footer">&#169; 2009 Computer Laboratory, University of Cambridge<br />Please send any comments on this page to <a href="mailto:dtg-www\@cl.cam.ac.uk">dtg-www\@cl.cam.ac.uk</a><br /></p><p class="rfooter"><a href="http://www.cl.cam.ac.uk/privacy.html">Privacy policy</a></p>
-    <div style="clear:both"></div>
-    </div>
-    </div>
-    </body>
-</html>
+window.onload = init;
+//-->   
+</script>
 EOF
 
+my $html_body = <<EOF;
+<div class="subtitle">OpenRoomMap - The William Gates Building
+- <a class="iconed" href="/research/dtg/openroommap/edit/" style="font-weight: normal"><span>Edit</span><img src="icon-edit.png" alt="Edit floor items" /></a></div>
+<form method="get" action="./">
+<div id="list-controls" style="margin-right: 1em">
+<a class="iconed" style="float:right; display: inline-block;" href="/research/dtg/openroommap/edit/"><span><b>Edit</b></span><img src="icon-edit.png" alt="Edit floor items" /></a>
 
+<span style="display: inline-block;">
+  <b>Room:</b> <input type="text" value="$search" name="s" size="10"/><input type="submit" value="Go"/>
+</span>
+&nbsp; &nbsp; &nbsp; &nbsp; 
 
+<span style="display: inline-block;"><b>Floor:</b> &nbsp;
+  <a href="?floor=0" $floorchecked[0]>Ground</a> &nbsp;
+  <a href="?floor=1" $floorchecked[1]>First</a> &nbsp;
+  <a href="?floor=2" $floorchecked[2]>Second</a>
+  
+  <!--<a id="orm-fl0" href="?floor=0" $floorchecked[0] onclick="return setfloor(layer0, this)">Ground</a> &nbsp;
+  <a id="orm-fl1" href="?floor=1" $floorchecked[1] onclick="return setfloor(layer1, this)">First</a> &nbsp;
+  <a id="orm-fl2" href="?floor=2" $floorchecked[2] onclick="return setfloor(layer2, this)">Second</a>-->
+
+  <!--<label>Ground<input type="radio" name="floor" value="0" onclick="setfloor(layer0)" style="vertical-align: top;" $floorchecked[0] /></label> &nbsp;
+  <label>First<input type="radio" name="floor" value="1" onclick="setfloor(layer1)" style="vertical-align: top;" $floorchecked[1] /></label> &nbsp;
+  <label>Second<input type="radio" name="floor"  value="2" onclick="setfloor(layer2)" style="vertical-align: top;" $floorchecked[2] /></label>-->
+</span>
+&nbsp; &nbsp; &nbsp; &nbsp; 
+
+<span style="display: inline-block;">
+  <label><b>Room labels:</b> <input name="labels" type="checkbox" onclick="setvisibility(this)" value="1" style="vertical-align: top;" $labelsChecked /></label>
+  <label><b>Occupants:</b> <input name="occupants" type="checkbox" onclick="setvisibility2(this)" value="1" style="vertical-align: top;" $occupantsChecked /></label>
+</span>
+</div>
+</form>
+
+<div style="height:530px;border:solid 1px black;padding:0;margin-right:1em;clear:both" id="map"></div>
+
+<br />
+
+<ul class="plain">
+<li>This map is a nightly snapshot from <a href="../">OpenRoomMap</a>, a building-occupant maintained plan, developed by the Digital Technology Group.</li>
+<li>If you wish to correct a mistake or wish to populate a room/space then please use the <a class="iconed" href="/research/dtg/openroommap/edit/"><span>Editor</span><img src="icon-edit.png" alt="Edit floor items" /></a>.</li>
+<li>You can see the current building <a href="/research/dtg/openroommap/inventory/">inventory list</a>.</li>
+<li>If you would like to be kept informed of future developments please join the mailing list: <a href="https://lists.cam.ac.uk/mailman/listinfo/cl-openroommap">cl-openroommap</a>.</li>
+</ul>
+EOF
+
+$site =~ s/<!--ORM_HEAD-->/$html_head/;
+$site =~ s/<!--ORM_BODY-->/$html_body/;
+
+print <<EOF;
+Content-type: text/html
+
+$site
+EOF

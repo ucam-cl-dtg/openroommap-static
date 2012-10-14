@@ -75,6 +75,27 @@ sub roomlist
 	    }
 	}
     }
+
+    foreach my $person (keys(%people)) {
+	my ($x,$y,$floor,$room,$timestamp,$itemid) = @{$people{$person}};
+	my $minDist = 1e10;
+	my $minRoom = $room;
+	if ($room eq "UNKNOWN") {
+	    foreach my $q (@rooms) {		
+		my ($roomname,$rfloor,$poly) = @$q;
+		if ($rfloor == $floor) {
+		    my ($cx, $cy) = @{$poly->centroid()};
+		    my $dist = ($x - $cx)**2 + ($y - $cy) ** 2;
+		    if ($dist < $minDist) {
+			$minDist = $dist;
+			$minRoom = $roomname;
+		    }
+		}
+	    }
+	}
+	$people{$person}->[6] = $minRoom;
+    }
+
     return \%people;
 }
 
@@ -104,7 +125,8 @@ foreach my $name (keys(%$peopleref)) {
     my $roomlistref = $ref->{$room};
     my $timestamp = $peopleref->{$name}->[4];
     my $itemid = $peopleref->{$name}->[5];
-    push(@$roomlistref,[$name,$timestamp,$itemid]);
+    my $nearest = $peopleref->{$name}->[6];
+    push(@$roomlistref,[$name,$timestamp,$itemid,$nearest]);
 }
 
 # now rooms is a list of 4 references to hashes
@@ -123,7 +145,7 @@ for(my $i=0;$i<4;$i++) {
 	    my @people = sort {$a->[0] cmp $b->[0]} @{$rooms[$i]->{$room}};
 	    my $first = 1;
 	    foreach my $person (@people) {
-		my ($name,$timestamp,$itemid) = @$person;
+		my ($name,$timestamp,$itemid,$nearest) = @$person;
 		if ($first ==1) {
 		    $body .= "<div style='clear:both;height:1em'></div>";
 		    $body .= "<div style='width:7em;float:left'>$room</div>";
@@ -132,7 +154,7 @@ for(my $i=0;$i<4;$i++) {
 		else {		
 		    $body .= "<div style='width:7em;float:left'>&nbsp;</div>";
 		}
-		$body .= "<div style='width:15em;float:left'>$name</div><!-- id = $itemid -->";
+		$body .= "\n<div style='width:15em;float:left'>$name</div><!-- id = $itemid, nearest = $nearest -->";
 		$body .= "<div style='width:20em;float:left'>$timestamp</div>";
 		$body .= "<div style='clear:both'></div>";
 	    }
