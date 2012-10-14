@@ -1,5 +1,6 @@
 all: subtiles floor0-labels floor1-labels floor2-labels floor0-people floor1-people floor2-people
 	scp tile/* root@open-room-map:/var/www/research/dtg/openroommap/static/tile/
+	perl clean-db.pl
 
 connect:
 	ssh open-room-map -L 5432:localhost:5432
