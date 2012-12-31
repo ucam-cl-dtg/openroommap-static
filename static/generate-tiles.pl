@@ -7,12 +7,14 @@ use DBI;
 use strict;
 
 my $floor = $ARGV[0];
-my $people = $ARGV[1];
-my $labels = 0;
-my $outlineOnly = 0;
+my $people = ($ARGV[1] =~ /people/ ? 1 : 0);
+my $rooms = ($ARGV[1] =~ /rooms/ ? 1 : 0);
+my $objects = ($ARGV[1] =~ /objects/ ? 1 : 0);
+my $desksOnly = ($ARGV[1] =~ /desksOnly/ ? 1 : 0);
+my $labels = ($ARGV[1] =~ /labels/ ? 1 : 0);
 my $stderrroomvectors = 0;
 
-my $roomFill = $outlineOnly == 0 ? 'fill="#cccccc" fill-opacity="0.10" stroke="none" vector-effect="non-scaling-stroke" ' : 'fill="none" stroke="none" vector-effect="non-scaling-stroke" ';
+my $roomFill = $objects == 0 ? 'fill="#cccccc" fill-opacity="0.10" stroke="none" vector-effect="non-scaling-stroke" ' : 'fill="none" stroke="none" vector-effect="non-scaling-stroke" ';
 my $roomStroke = 'fill="none" stroke="#000000" stroke-width="0.05" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" ';
 
 my $dbh = DBI->connect("dbi:Pg:dbname=openroommap;host=localhost;port=5432","orm","openroommap", {AutoCommit => 0}) or
@@ -77,11 +79,15 @@ foreach my $row (@$r) {
     $strokeData .= $first;
     $strokeData =~ s/^L/M/;
     $fillData .= "z";
-    if ($labels == 0 && $people == 0) { $document .= "<path d=\"$fillData\" $roomFill/>\n"; }
+    if ($rooms == 1) { $document .= "<path d=\"$fillData\" $roomFill/>\n"; }
 #    $document .= "<path d=\"$strokeData\" $roomStroke/>\n";
 }
 
-my $items = $dbh->selectall_arrayref("SELECT name,def_id from item_definition_table order by height asc");
+my $deskFilter = "";
+if ($desksOnly == 1) {
+    $deskFilter = "where def_id in (3,4,5,6,7,11,34,35,37)";
+}
+my $items = $dbh->selectall_arrayref("SELECT name,def_id from item_definition_table $deskFilter order by height asc");
 foreach my $item (@$items) {
     my ($name,$defid) = @$item;
     my $polyDefs = $dbh->selectall_arrayref("SELECT poly_id, fill_colour,fill_alpha,edge_colour,edge_alpha FROM item_polygon_table where item_def_id = $defid");
@@ -115,7 +121,7 @@ foreach my $item (@$items) {
 	    }
 	    $pathData =~ s/^L/M/;
 	    $pathData .= "z";
-	    if ($outlineOnly == 0 && $labels == 0 && $people == 0) { $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n"; }
+	    if ($objects == 1) { $document .= "<path d='$pathData' fill='$fill_colour' fill-opacity='$fill_alpha' stroke='$edge_colour' stroke-opacity='$edge_alpha' stroke-width='0.05' vector-effect='non-scaling-stroke'/>\n"; }
 	}
     }
 }
@@ -158,7 +164,7 @@ foreach my $row (@$r) {
     $strokeData =~ s/^L/M/;
     $fillData .= "z";
  #   $document .= "<path d=\"$fillData\" $roomFill/>\n";
-    if ($labels == 0 && $people == 0) { $document .= "<path d=\"$strokeData\" $roomStroke/>\n"; }
+    if ($rooms == 1) { $document .= "<path d=\"$strokeData\" $roomStroke/>\n"; }
     if ($labels == 1) {
 	my $rm = $dbh->selectall_arrayref("select name from room_table, roompoly_table where room_table.roomid = roompoly_table.roomid and roompoly_table.polyid = $polyid limit 1");
 	foreach my $rmrow (@$rm) {
@@ -177,7 +183,12 @@ foreach my $row (@$r) {
 	foreach my $plprow (@$plp) {
 	    my ($x,$y,$label) = @$plprow;
 	    $x *= -1;
-	    $document .= "<g><text x=\"$x\" y=\"$y\" dominant-baseline=\"central\" style=\"font-size:0.2934762px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:DejaVu Sans;inkscape-font-specification:DejaVu Sans\">$label</text></g>\n";
+	    $document .= "<g>";
+	    my ($ws,$hs) = (2.5195167/1.5,1.265015/1.5);
+	    my ($rx,$ry) = ($ws*0.125,$ws*0.125);
+	    my ($xs,$ys) = ($x - $ws/2, $y - $hs/2 - 0.08);
+	    $document .= "<rect style=\"opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.04;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1\" height=\"$hs\" width=\"$ws\" x=\"$xs\" y=\"$ys\" ry=\"$ry\" rx=\"$rx\" />";
+	    $document .= "<text x=\"$x\" y=\"$y\" dominant-baseline=\"central\" style=\"font-size:0.2934762px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:DejaVu Sans;inkscape-font-specification:DejaVu Sans\">$label</text></g>\n";
 	}
 
     }
