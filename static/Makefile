@@ -1,9 +1,9 @@
 all: subtiles floor0-labels floor1-labels floor2-labels floor0-people floor1-people floor2-people
-	scp tile/* root@open-room-map:/var/www/research/dtg/openroommap/static/tile/
+	scp tile/* root@open-room-map.cl.cam.ac.uk:/var/www/research/dtg/openroommap/static/tile/
 	perl clean-db.pl
 
 connect:
-	ssh open-room-map -L 5432:localhost:5432
+	ssh open-room-map.cl.cam.ac.uk -L 5432:localhost:5432
 
 subtiles:
 	for floor in `seq 2 -1 0`; do perl generate-tiles.pl $$floor 0 > map.svg; for a in `seq 0 1 5`; do WIDTH=$$(( (1<<$$a)*256 )); inkscape map.svg -e map.png -w $$WIDTH -b "#FFFFFF"; convert -crop 256x map.png tile-$$floor-$$a-%d.png; for b in tile-$$floor-$$a-*; do convert -crop x256 $$b tile/sub`basename $$b .png`-%d.png;done;rm tile-*; done; done
