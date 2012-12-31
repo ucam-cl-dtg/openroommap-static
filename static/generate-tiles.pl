@@ -177,7 +177,7 @@ foreach my $row (@$r) {
 	foreach my $plprow (@$plp) {
 	    my ($x,$y,$label) = @$plprow;
 	    $x *= -1;
-	    $document .= "<g><text x=\"$x\" y=\"$y\" dominant-baseline=\"central\" style=\"font-size:0.6934762px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:DejaVu Sans;inkscape-font-specification:DejaVu Sans\">$label</text></g>\n";
+	    $document .= "<g><text x=\"$x\" y=\"$y\" dominant-baseline=\"central\" style=\"font-size:0.2934762px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:DejaVu Sans;inkscape-font-specification:DejaVu Sans\">$label</text></g>\n";
 	}
 
     }
