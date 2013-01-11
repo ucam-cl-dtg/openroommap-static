@@ -10,7 +10,7 @@ class MachineRoom:
     pass
 
 def main():
-    conn = sqlite3.connect("servers.sqlite3")
+    conn = sqlite3.connect("machinerooms.sqlite3")
     c = conn.cursor()
     form = cgi.FieldStorage()
 

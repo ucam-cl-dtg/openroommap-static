@@ -15,7 +15,7 @@ def load_categories(c):
     return categories
 
 def main():
-    conn = sqlite3.connect("/var/www/cgi-bin/servers.sqlite3")
+    conn = sqlite3.connect("/var/www/cgi-bin/machinerooms.sqlite3")
     c = conn.cursor()
 
     form = cgi.FieldStorage()

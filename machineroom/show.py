@@ -24,7 +24,7 @@ class Measurement:
     pass
 
 def main():
-    conn = sqlite3.connect("servers.sqlite3")
+    conn = sqlite3.connect("machinerooms.sqlite3")
     c = conn.cursor()
     c2 = conn.cursor()
     form = cgi.FieldStorage()

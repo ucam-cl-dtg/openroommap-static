@@ -7,7 +7,7 @@ import os
 cgitb.enable()
 
 def main():
-    conn = sqlite3.connect("/var/www/cgi-bin/servers.sqlite3")
+    conn = sqlite3.connect("/var/www/cgi-bin/machinerooms.sqlite3")
     c = conn.cursor()
 
     form = cgi.FieldStorage()
