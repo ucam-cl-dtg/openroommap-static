@@ -82,7 +82,7 @@ def main():
         m.categories = map(lambda (i,n,p):('NEW',i,0),categories)
         details.append(m)
 
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader("/var/www/cgi-bin"),autoescape=True)
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader("."),autoescape=True)
     template = env.get_template("show.html")
     print "Content-type: text/html\n\n"
     print template.render(                     

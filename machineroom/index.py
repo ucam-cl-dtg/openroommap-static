@@ -25,7 +25,7 @@ def main():
         m.addedby = addedby
         machinerooms.append(m)
     
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader("/var/www/cgi-bin"),autoescape=True)
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader("."),autoescape=True)
     template = env.get_template("list.html")
     print "Content-type: text/html\n\n"
     print template.render(                     
