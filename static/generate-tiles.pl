@@ -31,7 +31,7 @@ if ($height < $width) {
 }
 ($width,$height) = ($maxX-$minX,$maxY-$minY);
 
-print STDERR "$minX,$minY,$maxX,$maxY\n";
+#print STDERR "$minX,$minY,$maxX,$maxY\n";
 
 my $document;
 
