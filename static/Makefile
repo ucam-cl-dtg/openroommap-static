@@ -16,16 +16,19 @@ tiles:
 
 
 floor0-allocation:
-	perl generate-tiles.pl 0 people,rooms,objects,desksOnly > floor0-allocation.svg
-	inkscape floor0-allocation.svg -A floor0-allocation.pdf
+	perl generate-tiles.pl 0 people,rooms,objects,desksOnly > temp.svg
+	touch floor0-allocation.svg
+	if [ ! `diff floor0-allocation.svg temp.svg >/dev/null 2>&1`]; then mv temp.svg floor0-allocation.svg; inkscape floor0-allocation.svg -A floor0-allocation.pdf; fi
 
 floor1-allocation:
-	perl generate-tiles.pl 1 people,rooms,objects,desksOnly > floor1-allocation.svg
-	inkscape floor1-allocation.svg -A floor1-allocation.pdf
+	perl generate-tiles.pl 1 people,rooms,objects,desksOnly > temp.svg
+	touch floor1-allocation.svg
+	if [ ! `diff floor1-allocation.svg temp.svg >/dev/null 2>&1`]; then mv temp.svg floor1-allocation.svg; inkscape floor1-allocation.svg -A floor1-allocation.pdf; fi
 
 floor2-allocation:
-	perl generate-tiles.pl 2 people,rooms,objects,desksOnly > floor2-allocation.svg
-	inkscape floor2-allocation.svg -A floor2-allocation.pdf
+	perl generate-tiles.pl 2 people,rooms,objects,desksOnly > temp.svg
+	touch floor2-allocation.svg
+	if [ ! `diff floor2-allocation.svg temp.svg >/dev/null 2>&1`]; then mv temp.svg floor2-allocation.svg; inkscape floor2-allocation.svg -A floor2-allocation.pdf; fi
 
 labels:
 	for floor in `seq 0 1 2`; do python floor$$floor-labels.svg temp sublabel-$$floor; done
