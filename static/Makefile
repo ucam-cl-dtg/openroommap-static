@@ -40,3 +40,7 @@ copy-index:
 clean:
 	rm -rf tile
 	mkdir -p tile
+	rm -f floor0-allocation.svg floor1-allocation.svg floor2-allocation.svg 
+	rm -f floor0-people.svg floor1-people.svg floor2-people.svg 
+	rm -f floor0-allocation.pdf floor1-allocation.pdf floor2-allocation.pdf 
+	rm -f *.png
