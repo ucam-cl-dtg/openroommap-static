@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>uk.ac.cam.cl.dtg</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.1</version>
+	</parent>
+	<artifactId>open-room-map-webtree</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0.1</version>
+	<name>Open-Room-Map web tree</name>
+
+	<build>
+	  <plugins>
+	    <plugin>
+	      <artifactId>maven-assembly-plugin</artifactId>
+	      <version>2.2-beta-5</version>
+	      <executions>
+		<execution>
+		  <id>zip-assembly</id>
+		  <phase>package</phase>
+		  <goals>
+		    <goal>single</goal>
+		  </goals>
+		</execution>
+	      </executions>
+	      <configuration>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+		<appendAssemblyId>false</appendAssemblyId>
+		<descriptors>
+		  <descriptor>assembly.xml</descriptor>
+		</descriptors>
+	      </configuration>
+	    </plugin>	    
+	  </plugins>  
+	</build>
+  
+</project>
