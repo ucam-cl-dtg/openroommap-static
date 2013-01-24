@@ -1,0 +1,55 @@
+{% extends "outer.html" %}
+
+{% block script %}
+  <script>
+  $(document).ready(function(){
+    $("#form").validate();
+  });
+  </script>
+{% endblock %}
+
+{% block body %}
+<h1>Machine rooms</h1>
+<table>
+  <tr>
+    <td>Name</td>
+    <td>Location</td>
+    <td>Purpose</td>
+    <td>Added by</td>
+    <td>&nbsp;</td>
+  </tr>
+  {% for (room) in machinerooms %}
+  <tr>
+    <td>{{ room.name }}</td>
+    <td>{{ room.location }}</td>
+    <td>{{ room.purpose }} </td>
+    <td>{{ room.addedby }} </td>
+    <td><a href="show.py?machineroomid={{ room.machineroomid }}">Details</a></td>
+  </tr>
+  {% endfor %}
+</table>
+<h1>Add more...</h1>
+<form id="form" action="new.py" method="post">
+  <fieldset>
+    <p>
+      <label for="name">Name</label>
+      <input id="name" name="name" size="50" type="text" class="required"/>
+    </p>
+    <p>
+      <label for="location">Location</label>
+      <input id="location" name="location" size="50" type="text" class="required"/>
+    </p>
+    <p>
+      <label for="purpose">Purpose</label>
+      <input id="purpose" name="purpose" size="50" type="text" class="required"/>
+    </p>
+    <p>
+      <label for="comment">Comment</label>
+      <textarea id="comment" name="comment" cols="50"></textarea>
+    </p>
+    <p>
+      <input class="submit" type="submit" value="Submit"/>
+    </p>
+  </fieldset>
+</form>
+{% endblock %}
