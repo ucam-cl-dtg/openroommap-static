@@ -8,7 +8,13 @@
 
   <fileSets>
     <fileSet>
-      <directory>www</directory>
+      <directory>target/www</directory>
+      <outputDirectory>www</outputDirectory>
+      <excludes>
+	<exclude>openroommap/build.ini</exclude>
+	<exclude>openroommap/build.py</exclude>
+	<exclude>openroommap/index-tpl.html</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
   
