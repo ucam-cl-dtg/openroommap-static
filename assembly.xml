@@ -15,7 +15,18 @@
 	<exclude>openroommap/build.py</exclude>
 	<exclude>openroommap/index-tpl.html</exclude>
 	<exclude>openroommap/edit/index-tpl.html</exclude>
+	<exclude>**/*.pl</exclude>
+	<exclude>**/*.py</exclude>
       </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>target/www</directory>
+      <outputDirectory>www</outputDirectory>
+      <includes>
+	<include>**/*.pl</include>
+	<include>**/*.py</include>
+      </includes>
+      <fileMode>0755</fileMode>
     </fileSet>
   </fileSets>
   
