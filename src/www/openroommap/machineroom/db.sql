@@ -20,7 +20,7 @@ CREATE TABLE machineroom (machineroomid integer not null primary key default nex
 
 create table measurementset(measurementsetid integer not null primary key default nextval('seqmeasurementsetid'), machineroomid integer not null references machineroom(machineroomid), updatetime timestamp not null, updatedby varchar(255) not null);
 
-CREATE TABLE measurement (measurementid integer not null primary key default nextval('seqmeasurementid'), measurementsetid integer not null references measurementset(measurementsetid), kiloWatt integer not null, observation text);
+CREATE TABLE measurement (measurementid integer not null primary key default nextval('seqmeasurementid'), measurementsetid integer not null references measurementset(measurementsetid), kiloWatt float not null, observation text);
 
 create table categories(categoryid integer not null primary key default nextval('seqcategoryid'), name varchar(255) not null, puePercent integer not null);
 CREATE TABLE datacategory(datacategoryid integer not null primary key default nextval('seqdatacategoryid'), measurementid integer not null references measurement(measurementid), proportionPercent integer not null, categoryid integer not null references categories(categoryid));
