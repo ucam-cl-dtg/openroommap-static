@@ -2,7 +2,7 @@
 
 import scipy
 import scipy.linalg
-import sqlite3
+import psycopg2 as db
 import jinja2
 import cgi
 import cgitb
@@ -11,7 +11,8 @@ cgitb.enable()
 def load_categories(c):
     categories = []
     expectedid = 0
-    for (categoryid,name,puePercent) in c.execute("SELECT categoryid,name,puePercent FROM categories order by categoryid asc"):
+    c.execute("SELECT categoryid,name,puePercent FROM categories order by categoryid asc")
+    for (categoryid,name,puePercent) in c.fetchall():
         assert(expectedid == categoryid)
         expectedid += 1
         categories.append( (categoryid,name,float(puePercent)/100.0) )
@@ -24,7 +25,7 @@ class Measurement:
     pass
 
 def main():
-    conn = sqlite3.connect("machinerooms.sqlite3")
+    conn = db.connect(database="machineroom",user="machineroom",password="machineroom",host="localhost")
     c = conn.cursor()
     c2 = conn.cursor()
     form = cgi.FieldStorage()
@@ -32,45 +33,52 @@ def main():
 
     categories = load_categories(c)
 
-    c.execute("SELECT name,location,purpose,comments,addedby FROM machineroom WHERE machineroomid = ?", [machineroomid])
+    c.execute("SELECT name,location,purpose,comments,addedby FROM machineroom WHERE machineroomid = %s", [machineroomid])
     machineroom = MachineRoom()
     machineroom.machineroomid = machineroomid
     (machineroom.name,machineroom.location,machineroom.purpose,machineroom.comments,machineroom.addedby) = c.fetchone()
+
+    (summary,total,pue) = (map(lambda (id,cat,prop):(cat,0),categories),0.0,0.0)
     
-    c.execute("SELECT measurementsetid,datetime(updatetime,'unixepoch'),updatedby from measurementset where machineroomid=? order by updatetime desc", (machineroomid))
+    c.execute("SELECT measurementsetid,updatetime,updatedby from measurementset where machineroomid=%s order by updatetime desc", (machineroomid))
     row = c.fetchone()
     if row:
         (measurementsetid,machineroom.updatetime, machineroom.updateby) = row
 
         (A,B) = ([],[])
-        for (measurementid,kiloWatt) in c.execute("SELECT measurementid,kiloWatt FROM measurement WHERE measurementsetid=?", [measurementsetid]):
+        c.execute("SELECT measurementid,kiloWatt FROM measurement WHERE measurementsetid=%s", [measurementsetid])
+        for (measurementid,kiloWatt) in c.fetchall():
             values = scipy.zeros(categories.__len__())
-            for (prop,categoryid) in c2.execute("SELECT proportionPercent, categoryid FROM datacategory WHERE measurementid = ?",[measurementid]):
+            c2.execute("SELECT proportionPercent, categoryid FROM datacategory WHERE measurementid = %s",[measurementid])
+            for (prop,categoryid) in c2.fetchall():
                 values[int(categoryid)] = float(prop) / 100.0
             A.append(values)
             B.append([kiloWatt])
-        A = scipy.mat(A)
-        B = scipy.mat(B)
-        C = scipy.linalg.lstsq(A,B)[0]
+        if (A.__len__() != 0 and B.__len__() != 0):
+            A = scipy.mat(A)
+            B = scipy.mat(B)
+            C = scipy.linalg.lstsq(A,B)[0]
 
-        (summary,total,puetotal) = ([],0.0,0.0)
-        for (i,(id,cat,prop)) in enumerate(categories):
-            summary.append((cat,C[i][0]))
-            total += C[i][0]
-            puetotal += C[i][0] * prop
-        pue = total / puetotal
+            (summary,total,puetotal) = ([],0.0,0.0)
+            for (i,(id,cat,prop)) in enumerate(categories):
+                summary.append((cat,C[i][0]))
+                total += C[i][0]
+                puetotal += C[i][0] * prop
+                pue = total / puetotal
     else:
         (measurementsetid,machineroom.updatetime, machineroom.updateby) = (-1,'N/A','N/A')        
-        (summary,total,pue) = (map(lambda (id,cat,prop):(cat,0),categories),0.0,0.0)
+
 
     details = []
-    for (measurementid,kiloWatt,observation) in c.execute("SELECT measurementid,kiloWatt,observation FROM measurement WHERE measurementsetid = ? order by measurementid asc", ([measurementsetid])):
+    c.execute("SELECT measurementid,kiloWatt,observation FROM measurement WHERE measurementsetid = %s order by measurementid asc", ([measurementsetid]))
+    for (measurementid,kiloWatt,observation) in c.fetchall():
         m = Measurement()
         m.measurementid = measurementid
         m.observation = observation
         m.kiloWatt = kiloWatt
         m.categories = []
-        for (datacategoryid, categoryid,prop) in c2.execute("SELECT datacategoryid, categories.categoryid, proportionPercent FROM categories left outer join datacategory on categories.categoryid = datacategory.categoryid and datacategory.measurementid = ? order by categories.categoryid",[measurementid]):
+        c2.execute("SELECT datacategoryid, categories.categoryid, proportionPercent FROM categories left outer join datacategory on categories.categoryid = datacategory.categoryid and datacategory.measurementid = %s order by categories.categoryid",[measurementid])
+        for (datacategoryid, categoryid,prop) in c2.fetchall():
             if not (prop > 0 and prop <= 100):
                 prop = 0
             m.categories.append((datacategoryid,categoryid,prop))

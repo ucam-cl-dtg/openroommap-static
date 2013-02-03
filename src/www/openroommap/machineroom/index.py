@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sqlite3
+import psycopg2 as db
 import jinja2
 import cgi
 import cgitb
@@ -10,13 +10,14 @@ class MachineRoom:
     pass
 
 def main():
-    conn = sqlite3.connect("machinerooms.sqlite3")
+    conn = db.connect(database="machineroom",user="machineroom",password="machineroom",host="localhost")
     c = conn.cursor()
     form = cgi.FieldStorage()
 
     machinerooms = []
 
-    for (machineroomid,name,location,purpose,addedby) in c.execute("SELECT machineroomid,name,location,purpose,addedby FROM machineroom order by machineroomid asc"):
+    c.execute("SELECT machineroomid,name,location,purpose,addedby FROM machineroom order by machineroomid asc")
+    for (machineroomid,name,location,purpose,addedby) in c.fetchall():
         m = MachineRoom()
         m.machineroomid = machineroomid
         m.name = name

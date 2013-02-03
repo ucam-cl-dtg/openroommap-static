@@ -8,9 +8,16 @@
   </parent>
   <artifactId>open-room-map-webtree</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
   <name>Open-Room-Map web tree</name>
+
+  <!-- this is here so I can override the build directory on the command line with mvn -DbuildDirectory=/tmp -->
+  <properties>
+    <buildDirectory>${project.basedir}/target</buildDirectory>
+  </properties>
+
   <build>
+    <directory>${buildDirectory}</directory>
     <plugins>
       <plugin>
 	<artifactId>maven-resources-plugin</artifactId>
