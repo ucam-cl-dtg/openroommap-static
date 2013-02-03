@@ -8,7 +8,7 @@
   </parent>
   <artifactId>open-room-map-webtree</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
   <name>Open-Room-Map web tree</name>
   <build>
     <plugins>
@@ -34,17 +34,6 @@
 	  </execution>
 	</executions>
       </plugin>	    
-    </plugins>  
-  </build>
-
-  <profiles>
-    <profile>
-      <id>default</id>
-      <activation>
-	<activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-	<plugins>
 	  <plugin>
 	    <groupId>org.codehaus.mojo</groupId>
 	    <artifactId>exec-maven-plugin</artifactId>
@@ -87,38 +76,6 @@
 	      </descriptors>
 	    </configuration>
 	  </plugin>	    
-	</plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>make-tiles</id>
-      <build>
-	<plugins>
-	  <plugin>
-	    <groupId>org.codehaus.mojo</groupId>
-	    <artifactId>exec-maven-plugin</artifactId>
-	    <version>1.2.1</version>
-	    <executions>
-	      <execution>
-		<id>gen-tiles</id>
-		<phase>compile</phase>
-		<goals>
-		  <goal>exec</goal>
-		</goals>
-	      </execution>
-	    </executions>
-	    <configuration>
-	      <executable>bash</executable>
-	      <workingDirectory>${project.build.directory}/static</workingDirectory>
-	      <arguments>
-		<argument>make-all.sh</argument>
-	      </arguments>
-	    </configuration>
-	  </plugin>
-	</plugins>
-      </build>
-    </profile>
-  </profiles>
-  
+    </plugins>  
+  </build>  
 </project>
