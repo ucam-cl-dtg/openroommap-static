@@ -8,7 +8,7 @@
   </parent>
   <artifactId>open-room-map-webtree</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
   <name>Open-Room-Map web tree</name>
 
   <!-- this is here so I can override the build directory on the command line with mvn -DbuildDirectory=/tmp -->
