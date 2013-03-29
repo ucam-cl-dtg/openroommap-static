@@ -9,7 +9,7 @@
   <fileSets>
     <fileSet>
       <directory>target/www</directory>
-      <outputDirectory>www</outputDirectory>
+      <outputDirectory>.</outputDirectory>
       <excludes>
 	<exclude>openroommap/build.ini</exclude>
 	<exclude>openroommap/build.py</exclude>
@@ -21,7 +21,7 @@
     </fileSet>
     <fileSet>
       <directory>target/www</directory>
-      <outputDirectory>www</outputDirectory>
+      <outputDirectory>.</outputDirectory>
       <includes>
 	<include>**/*.pl</include>
 	<include>**/*.py</include>
