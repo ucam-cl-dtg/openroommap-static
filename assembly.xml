@@ -8,7 +8,7 @@
 
   <fileSets>
     <fileSet>
-      <directory>target/www</directory>
+      <directory>target/www/openroommap</directory>
       <outputDirectory>.</outputDirectory>
       <excludes>
 	<exclude>openroommap/build.ini</exclude>
@@ -20,7 +20,7 @@
       </excludes>
     </fileSet>
     <fileSet>
-      <directory>target/www</directory>
+      <directory>target/www/openroommap</directory>
       <outputDirectory>.</outputDirectory>
       <includes>
 	<include>**/*.pl</include>
