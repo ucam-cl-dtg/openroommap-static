@@ -31,6 +31,8 @@ def main():
     form = cgi.FieldStorage()
     machineroomid = form["machineroomid"].value
 
+    edit_proportions = form.getfirst("prop") == "y"
+
     categories = load_categories(c)
 
     c.execute("SELECT name,location,purpose,comments,addedby FROM machineroom WHERE machineroomid = %s", [machineroomid])
@@ -44,7 +46,7 @@ def main():
     row = c.fetchone()
     if row:
         (measurementsetid,machineroom.updatetime, machineroom.updateby) = row
-
+        machineroom.updatetime = machineroom.updatetime.strftime("%Y-%m-%d %H:%M:%S")
         (A,B) = ([],[])
         c.execute("SELECT measurementid,kiloWatt FROM measurement WHERE measurementsetid=%s", [measurementsetid])
         for (measurementid,kiloWatt) in c.fetchall():
@@ -99,7 +101,8 @@ def main():
         summary = summary, 
         total = total,
         pue = pue,
-        details = details)
+        details = details,
+        edit_proportions = edit_proportions)
 
     conn.close()
 
