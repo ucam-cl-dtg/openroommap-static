@@ -20,33 +20,51 @@
 {% endblock %}
 
 {% block body %}
-  <a href="index.py">(back to list)</a>
-  <h1>{{ machineroom.name }}</h1> 
-    <div id="summary">
-      <h2>Summary</h2>
-      <div style="float:left;width:50%">
+  <ul id="nav-breadcrumb">
+    <li class="first"><a href="http://www.cl.cam.ac.uk">Computer Laboratory</a></li>
+    <li><a href="http://www.cl.cam.ac.uk/research">Research</a></li>
+    <li><a href="http://www.cl.cam.ac.uk/research/dtg">Digital Technology Group</a></li>
+    <li><a href="index.py">Machine room list</a></li>
+    <li><a href="#">{{ machineroom.name }}</a></li>
+  </ul>
+    <div id="summary" style="width:35em">
+      <hr/>
+      <p style="text-align:center">{{ machineroom.name }} (<a href="edit.py?machineroomid={{ machineroom.machineroomid }}">edit</a>)<br/>{{ machineroom.purpose }}<br/>{{ machineroom.location  }} </p>
+      <div style="float:left;width:15em">
 	<table border="0" cellspacing="10">
 	  {% for (category,value) in summary %}
 	  <tr><td>{{ category }}</td><td align="right">{{ "%0.3f"|format(value) }} kW</td></tr>
 	  {% endfor %}
 	</table>
       </div>
-      <div style="float:left;width:50%">
+      <div style="float:left;width:17em">
 	<table border="0" cellspacing="10">
 	  <tr><td><b>Total power</b></td><td>{{ "%0.3f"|format(total) }} kW</td></tr>
 	  <tr><td><b>PUE</b></td><td>{{ "%0.3f"|format(pue) }}</td></tr>
 	  <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
-	  <tr><td>Last update</td><td>{{ machineroom.updatetime }}</td></tr>
+	  <tr><td>Last measurement</td><td>{{ machineroom.updatetime }}</td></tr>
 	  <tr><td>Updated by</td><td>{{ machineroom.updateby }}</td></tr>
 	</table>
       </div>
       <div style="clear:both"></div>
-      <p>Purpose: {{ machineroom.purpose|e }}</p>
-      <p>Location: {{ machineroom.location|e }}</p>
       <p>Comments: {{ machineroom.comments|e }} </p>
+      <p>The breakdown is an estimate derived from the measurements provided.  In the case where a measurement covers more than one category the energy cost is divided equally between each.</p>
+      <hr/>
     </div>
     <div id="measurements">
       <h2>Measurements</h2>
+      {% if edit_proportions is sameas false %}
+      <p>
+	Use the check boxes to indicate which classes of equipment are covered by a measurement.  For example: a measurement of the energy consumption of the UPS might cover Computers, Networking and the UPS itself.  If your measurement only applies to part of the consumption of a class (e.g. two UPS measured separately) then you can indicate these proportions by switching to: 
+	<a href="show.py?machineroomid={{ machineroom.machineroomid  }}&prop=y">proportion mode</a>
+      </p>
+      {% else %}
+      <p>
+	You are currently editing in 'proportion mode'.  Enter the percentage of a particular class which each measurement covers.  For example if you have a measurement which only covers 50% of the lighting you should enter 50 in the lighting column.  Alternatively you can switch back to
+ 	<a href="show.py?machineroomid={{ machineroom.machineroomid  }}">basic mode</a>
+      </p>
+      {% endif %}	     
+
       <form method="post" action="update.py" id="form">
 	<input type="hidden" name="machineroomid" value="{{ machineroom.machineroomid }}"/>
 	<table border="0" cellspacing="10">
@@ -75,6 +93,16 @@
 	    {% for (dataid,id,c) in m.categories %}
 	    <td>
 	      <input name="proportionid_{{ m.measurementid }}_{{ id }}" type="hidden" value="{{ dataid }}"/>
+	      {% if edit_proportions is sameas true %} 
+	       <input id="proportion_{{ m.measurementid }}_{{ id }}"
+		     name="proportion_{{ m.measurementid }}_{{ id }}" 
+		     type="text" 
+		     value="{{ c }}" 
+		     min="0"
+		     max="100"
+		     size="5"/>
+	      {% else %}
+
               {% if c is sameas 100 %}
 	      <input id="proportion_{{ m.measurementid }}_{{ id }}"
 		     name="proportion_{{ m.measurementid }}_{{ id }}" 
@@ -95,6 +123,8 @@
 		     max="100"
 		     size="5"/>
 	      {% endif %}	     
+
+	      {% endif %}	     
 	    </td>
 	    {% endfor %}
 	  </tr>
@@ -102,5 +132,6 @@
 	</table>
 	<input id="submit" type="submit" value="Update"/>
       </form>
+
   </div>
 {% endblock %}

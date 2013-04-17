@@ -1,0 +1,48 @@
+{% extends "outer.html" %}
+
+{% block script %}
+  <script>
+  $(document).ready(function(){
+    $("#form").validate();
+  });
+  </script>
+{% endblock %}
+
+{% block body %}
+ <ul id="nav-breadcrumb">
+    <li class="first"><a href="http://www.cl.cam.ac.uk">Computer Laboratory</a></li>
+    <li><a href="http://www.cl.cam.ac.uk/research">Research</a></li>
+    <li><a href="http://www.cl.cam.ac.uk/research/dtg">Digital Technology Group</a></li>
+    <li><a href="index.py">Machine room list</a></li>
+    <li><a href="#">{{ machineroom.name }}</a></li>
+  </ul>
+<h1>Edit</h1>
+<p>Please note that you can only edit the details of machine rooms which you have created</p>
+<form id="form" action="editsubmit.py" method="post">
+  <input type="hidden" name="id" value="{{ machineroom.machineroomid }}"></input>
+  <fieldset>
+    <p>
+      <label for="name">Name</label>
+      <input id="name" name="name" size="50" type="text" value="{{ machineroom.name }}" class="required"/>
+    </p>
+    <p>
+      <label for="addedby">Added-by</label>
+      <input id="addedby" name="addedby" size="50" type="text" value="{{ machineroom.addedby }}" disabled="true"/>
+    <p>
+      <label for="location">Location</label>
+      <input id="location" name="location" size="50" type="text" value="{{ machineroom.location }}" class="required"/>
+    </p>
+    <p>
+      <label for="purpose">Purpose</label>
+      <input id="purpose" name="purpose" size="50" type="text" value="{{ machineroom.purpose }}" class="required"/>
+    </p>
+    <p>
+      <label for="comment">Comment</label>
+      <textarea id="comment" name="comment" cols="50">{{ machineroom.comments }}</textarea>
+    </p>
+    <p>
+      <input class="submit" type="submit" value="Submit"/>
+    </p>
+  </fieldset>
+</form>
+{% endblock %}
