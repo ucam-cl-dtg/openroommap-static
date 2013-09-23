@@ -18,7 +18,7 @@ class dtgStatic:
 	
 #	debug = False
 	debug = True
-	skel_url = 'http://www.cl.cam.ac.uk/research/dtg/www/skel/'
+	skel_url = 'https://www.cl.cam.ac.uk/research/dtg/www/skel/'
 	config = None
 	maps = {}
 
