@@ -33,7 +33,7 @@ def main():
     conn.commit()
     conn.close()
 
-    requesturi = "http://%s%s/show.py?machineroomid=%s" % (os.environ["HTTP_HOST"], os.path.dirname(os.environ["REQUEST_URI"]), id)
+    requesturi = "https://%s%s/show.py?machineroomid=%s" % (os.environ["HTTP_HOST"], os.path.dirname(os.environ["REQUEST_URI"]), id)
     
     print "Location: %s\n" % (requesturi)
 
