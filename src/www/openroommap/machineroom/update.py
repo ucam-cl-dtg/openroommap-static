@@ -57,7 +57,7 @@ def main():
     conn.commit()
     conn.close()
 
-    requesturi = "http://%s%s/show.py?machineroomid=%s" % (os.environ["HTTP_HOST"], os.path.dirname(os.environ["REQUEST_URI"]), machineroomid)
+    requesturi = "https://%s%s/show.py?machineroomid=%s" % (os.environ["HTTP_HOST"], os.path.dirname(os.environ["REQUEST_URI"]), machineroomid)
     print "Location: %s\n" % (requesturi)
 
 if __name__ == "__main__":
