@@ -435,7 +435,7 @@ sub readfile
 } 
 
 my $site = readfile("static.html", 1);
-my $date_updated = readfile("tiles/date-generated.txt",1);
+my $date_updated = readfile("tile/date-generated.txt",1);
 
 my $html_head = <<EOF;
 <script type="text/javascript" src="OpenLayers.js"></script>
