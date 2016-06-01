@@ -435,6 +435,7 @@ sub readfile
 } 
 
 my $site = readfile("static.html", 1);
+my $date_updated = readfile("tiles/date-generated.txt",1);
 
 my $html_head = <<EOF;
 <script type="text/javascript" src="OpenLayers.js"></script>
@@ -613,9 +614,10 @@ my $html_body = <<EOF;
 
 <ul class="plain">
 <li>This map is a nightly snapshot from <a href="../">OpenRoomMap</a>, a building-occupant maintained plan, developed by the Digital Technology Group.</li>
+<li>Snapshot last generated at: $date_updated</li>
 <li>If you wish to correct a mistake or wish to populate a room/space then please use the <a class="iconed" href="/research/dtg/openroommap/edit/"><span>Editor</span><img src="icon-edit.png" alt="Edit floor items" /></a>.</li>
 <li>You can see the current building <a href="/research/dtg/openroommap/inventory/">inventory list</a>.</li>
-<li>If you would like to be kept informed of future developments please join the mailing list: <a href="https://lists.cam.ac.uk/mailman/listinfo/cl-openroommap">cl-openroommap</a>.</li>
+<!-- <li>If you would like to be kept informed of future developments please join the mailing list: <a href="https://lists.cam.ac.uk/mailman/listinfo/cl-openroommap">cl-openroommap</a>.</li> -->
 </ul>
 EOF
 
