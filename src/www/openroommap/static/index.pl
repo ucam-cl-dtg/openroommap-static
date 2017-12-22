@@ -43,8 +43,11 @@ if ($q->param("s")) {
 }
 
 $search = uc($search);
+$search =~ s/[^A-Z0-9_]//g;
 $reqzoom =~ s/\D//g;
 $reqfloor =~ s/\D//g;
+$reqhighlight =~ s/\D//g;
+
 
 my %rooms = (
     "CORR" => [998.81,1038.27,1001.54,1046.15,0],
